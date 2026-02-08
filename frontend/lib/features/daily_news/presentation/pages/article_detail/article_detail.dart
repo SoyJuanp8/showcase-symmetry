@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../injection_container.dart';
 import '../../../domain/entities/article.dart';
-import '../../bloc/article/local/local_article_bloc.dart';
-import '../../bloc/article/local/local_article_event.dart';
 import '../../widgets/molecules/article_header.dart';
 import '../../widgets/molecules/font_size_selector.dart';
 import '../../widgets/organisms/article_actions_bar.dart';
@@ -46,48 +42,45 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
     final theme = Theme.of(context);
     final article = widget.article;
 
-    return BlocProvider(
-      create: (_) => sl<LocalArticleBloc>()..add(const GetSavedArticles()),
-      child: Scaffold(
-        backgroundColor: theme.scaffoldBackgroundColor,
-        body: Stack(
-          children: [
-            // Main Content
-            SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 80, 20, 150),
-                child: _buildContent(article, theme),
-              ),
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          // Main Content
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 80, 20, 150),
+              child: _buildContent(article, theme),
             ),
+          ),
 
-            // Molecule: Custom Header
-            const Positioned(top: 0, left: 0, right: 0, child: ArticleHeader()),
+          // Molecule: Custom Header
+          const Positioned(top: 0, left: 0, right: 0, child: ArticleHeader()),
 
-            // Molecule: Font Size Menu Overlay
-            if (_selectedIndex == 3)
-              Positioned(
-                bottom: 90,
-                right: 75,
-                child: FontSizeSelector(
-                  currentSize: _bodyFontSize,
-                  onSizeSelected: _onFontSizeChanged,
-                ),
-              ),
-
-            // Organism: Floating Bottom Bar
+          // Molecule: Font Size Menu Overlay
+          if (_selectedIndex == 3)
             Positioned(
-              bottom: 30,
-              left: 40,
-              right: 40,
-              child: ArticleActionsBar(
-                article: article,
-                selectedIndex: _selectedIndex,
-                onActionSelected: _onActionSelected,
-                onShowSnackBar: _showModernSnackBar,
+              bottom: 90,
+              right: 75,
+              child: FontSizeSelector(
+                currentSize: _bodyFontSize,
+                onSizeSelected: _onFontSizeChanged,
               ),
             ),
-          ],
-        ),
+
+          // Organism: Floating Bottom Bar
+          Positioned(
+            bottom: 30,
+            left: 40,
+            right: 40,
+            child: ArticleActionsBar(
+              article: article,
+              selectedIndex: _selectedIndex,
+              onActionSelected: _onActionSelected,
+              onShowSnackBar: _showModernSnackBar,
+            ),
+          ),
+        ],
       ),
     );
   }

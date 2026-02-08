@@ -41,8 +41,10 @@ class _CategoryFilterBarState extends State<CategoryFilterBar> {
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey.withOpacity(0.1),
+                      ? const Color(0xFF3A4A7D)
+                      : Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(

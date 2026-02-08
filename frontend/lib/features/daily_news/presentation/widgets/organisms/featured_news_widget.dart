@@ -198,12 +198,6 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                             ],
                           ),
                         ),
-                        // Floating Bookmark Button on Top
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: _buildBookmarkIcon(context, article),
-                        ),
                       ],
                     ),
                   ),
@@ -232,34 +226,6 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildBookmarkIcon(BuildContext context, ArticleEntity article) {
-    // Note: Real bookmark logic would use Local Articles Bloc.
-    // For this adaptation, we provide the UI structure.
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Saved to favorites (Logic TBD)'),
-            duration: Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.bookmark_border,
-          size: 20,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 }

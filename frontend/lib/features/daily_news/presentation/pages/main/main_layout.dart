@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../pages/home/my_articles.dart';
 import '../../pages/discover/discover_page.dart';
+import '../../pages/saved/saved_articles.dart';
+import '../../pages/profile/profile_page.dart';
 import '../../widgets/organisms/floating_bottom_nav_bar.dart';
 
 class MainLayout extends StatefulWidget {
@@ -16,8 +18,8 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _pages = [
     const MyArticlesPage(),
     const DiscoverPage(),
-    const Center(child: Text('Saved Articles')),
-    const Center(child: Text('Profile Screen')),
+    const SavedArticlesPage(),
+    const ProfilePage(),
   ];
 
   @override
