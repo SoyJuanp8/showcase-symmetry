@@ -1,7 +1,25 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TODO: WRITE ANY NECESSARY FIRESTORE RULES HERE
+    
+    // Helper function to validate Article fields
+    function isValidArticle(article) {
+      return article.keys().hasAll(['author', 'title', 'description', 'url', 'urlToImage', 'publishedAt', 'content'])
+        && article.size() == 7
+        && article.author is string
+        && article.title is string
+        && article.description is string
+        && article.url is string
+        && article.urlToImage is string
+        && article.publishedAt is string
+        && article.content is string;
+    }
+
+    match /articles/{articleId} {
+      allow read: if true;
+      allow create: if isValidArticle(request.resource.data);
+      allow update: if isValidArticle(request.resource.data);
+      allow delete: if true;
+    }
   }
 }
