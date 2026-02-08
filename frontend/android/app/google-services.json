@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "874528867372",
+    "project_id": "symmetry-showcase-2c2b8",
+    "storage_bucket": "symmetry-showcase-2c2b8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874528867372:android:fcde9f6575f76c37b2fd89",
+        "android_client_info": {
+          "package_name": "com.example.news_app_clean"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCD2uEUCLO-SO8LhTa7Z7I2AgEbHxnbfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874528867372:android:4694e86b0b2c0490b2fd89",
+        "android_client_info": {
+          "package_name": "com.example.news_app_clean_architecture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCD2uEUCLO-SO8LhTa7Z7I2AgEbHxnbfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
