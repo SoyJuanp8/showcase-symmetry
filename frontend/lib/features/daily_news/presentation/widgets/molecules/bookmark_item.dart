@@ -47,11 +47,16 @@ class BookmarkItem extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
+                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
                     Text(
-                      article.publishedAt?.split('T')[0] ?? '',
+                      article.savedAt != null && article.savedAt!.isNotEmpty
+                          ? 'Saved ${_timeAgo(article.savedAt)}'
+                          : article.publishedAt?.split('T')[0] ?? '',
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 13,
+                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -104,5 +109,25 @@ class BookmarkItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _timeAgo(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '';
+    final date = DateTime.tryParse(dateString);
+    if (date == null) return '';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 1) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} min ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

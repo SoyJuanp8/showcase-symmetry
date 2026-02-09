@@ -5,6 +5,7 @@ import '../../bloc/article/remote/remote_article_state.dart';
 import '../../widgets/organisms/home_app_bar.dart';
 import '../../widgets/organisms/featured_news_widget.dart';
 import '../../widgets/organisms/recent_news_widget.dart';
+import '../../widgets/organisms/news_stories_widget.dart';
 
 class MyArticlesPage extends StatelessWidget {
   const MyArticlesPage({super.key});
@@ -34,6 +35,8 @@ class MyArticlesPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 16),
+                  NewsStoriesWidget(articles: articles),
                   const SizedBox(height: 16),
                   FeaturedNewsWidget(articles: articles),
                   const SizedBox(height: 24),

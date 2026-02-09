@@ -12,6 +12,7 @@ class ArticleEntity extends Equatable {
   final String? content;
   final String? category;
   final Source? source;
+  final String? savedAt;
 
   const ArticleEntity({
     this.id,
@@ -24,6 +25,7 @@ class ArticleEntity extends Equatable {
     this.content,
     this.category,
     this.source,
+    this.savedAt,
   });
 
   @override
@@ -39,6 +41,7 @@ class ArticleEntity extends Equatable {
       content,
       category,
       source,
+      savedAt,
     ];
   }
 
@@ -53,6 +56,7 @@ class ArticleEntity extends Equatable {
     String? content,
     String? category,
     Source? source,
+    String? savedAt,
   }) {
     return ArticleEntity(
       id: id ?? this.id,
@@ -65,6 +69,7 @@ class ArticleEntity extends Equatable {
       content: content ?? this.content,
       category: category ?? this.category,
       source: source ?? this.source,
+      savedAt: savedAt ?? this.savedAt,
     );
   }
 }

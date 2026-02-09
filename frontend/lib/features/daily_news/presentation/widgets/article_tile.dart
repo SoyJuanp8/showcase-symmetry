@@ -122,7 +122,9 @@ class ArticleWidget extends StatelessWidget {
                 const Icon(Icons.timeline_outlined, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  article!.publishedAt!,
+                  article!.savedAt != null && article!.savedAt!.isNotEmpty
+                      ? 'Saved ${_timeAgo(article!.savedAt)}'
+                      : article!.publishedAt!,
                   style: const TextStyle(
                     fontSize: 12,
                   ),
@@ -157,6 +159,26 @@ class ArticleWidget extends StatelessWidget {
   void _onRemove() {
     if (onRemove != null) {
       onRemove!(article!);
+    }
+  }
+
+  String _timeAgo(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '';
+    final date = DateTime.tryParse(dateString);
+    if (date == null) return '';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 1) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} min ago';
+    } else {
+      return 'Just now';
     }
   }
 }

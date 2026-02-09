@@ -15,7 +15,25 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 const Icon(Icons.auto_awesome),
           ),
           const SizedBox(width: 10),
-          const Text('Symmetry'),
+          RichText(
+            text: TextSpan(
+              style: DefaultTextStyle.of(context).style.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+              children: const [
+                TextSpan(text: 'Symmetry'),
+                TextSpan(
+                  text: ' News',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       actions: [

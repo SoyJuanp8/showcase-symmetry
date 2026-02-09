@@ -17,6 +17,7 @@ class ArticleModel extends ArticleEntity {
     String? content,
     String? category,
     Source? source,
+    String? savedAt,
   }) : super(
           id: id,
           author: author,
@@ -28,6 +29,7 @@ class ArticleModel extends ArticleEntity {
           content: content,
           category: category,
           source: source,
+          savedAt: savedAt,
         );
 
   factory ArticleModel.fromJson(Map<String, dynamic> map) {
@@ -44,6 +46,7 @@ class ArticleModel extends ArticleEntity {
       category: map['category'] ?? "General",
       source:
           map['source'] != null ? SourceModel.fromJson(map['source']) : null,
+      savedAt: map['savedAt'] ?? "",
     );
   }
 
@@ -59,6 +62,7 @@ class ArticleModel extends ArticleEntity {
       content: entity.content,
       category: entity.category,
       source: entity.source,
+      savedAt: entity.savedAt,
     );
   }
 

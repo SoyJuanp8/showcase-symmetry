@@ -23,75 +23,29 @@ class _SavedArticlesPageState extends State<SavedArticlesPage> {
         highlightColor: Colors.transparent,
         hoverColor: Colors.transparent,
       ),
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: AppBar(
           backgroundColor: theme.scaffoldBackgroundColor,
-          appBar: AppBar(
-            backgroundColor: theme.scaffoldBackgroundColor,
-            elevation: 0,
-            toolbarHeight: 80,
-            title: const Text(
-              'Bookmarks',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.swap_vert, color: theme.primaryColor),
-              ),
-              const SizedBox(width: 8),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: TabBar(
-                  isScrollable: true,
-                  dividerColor: Colors.transparent,
-                  splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: const Color(0xFF3A4A7D),
-                  ),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: theme.textTheme.titleLarge?.color,
-                  labelStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  tabs: const [
-                    Tab(
-                      height: 38,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('Saved'),
-                      ),
-                    ),
-                    Tab(
-                      height: 38,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('Categories'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          elevation: 0,
+          toolbarHeight: 60,
+          centerTitle: true,
+          title: const Text(
+            'Bookmarks',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          body: TabBarView(
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _buildSavedList(context),
-              const Center(child: Text('Categories View Coming Soon')),
-            ],
-          ),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.swap_vert, color: theme.primaryColor),
+            ),
+            const SizedBox(width: 8),
+          ],
         ),
+        body: _buildSavedList(context),
       ),
     );
   }

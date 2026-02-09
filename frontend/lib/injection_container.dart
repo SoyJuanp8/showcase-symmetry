@@ -22,8 +22,9 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
-  final database =
-      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  final database = await $FloorAppDatabase
+      .databaseBuilder('app_database.db')
+      .addMigrations([migration1to2]).build();
   sl.registerSingleton<AppDatabase>(database);
 
   // Dio

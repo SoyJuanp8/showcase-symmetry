@@ -7,7 +7,11 @@ import 'dart:async';
 part 'app_database.g.dart';
 
 @TypeConverters([SourceTypeConverter])
-@Database(version: 1, entities: [ArticleModel])
+@Database(version: 2, entities: [ArticleModel])
 abstract class AppDatabase extends FloorDatabase {
   ArticleDao get articleDAO;
 }
+
+final migration1to2 = Migration(1, 2, (database) async {
+  await database.execute('ALTER TABLE article ADD COLUMN savedAt TEXT');
+});

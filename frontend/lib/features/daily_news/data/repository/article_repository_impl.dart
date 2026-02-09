@@ -108,8 +108,8 @@ class ArticleRepositoryImpl implements ArticleRepository {
 
   @override
   Future<void> saveArticle(ArticleEntity article) {
-    return _appDatabase.articleDAO
-        .insertArticle(ArticleModel.fromEntity(article));
+    return _appDatabase.articleDAO.insertArticle(ArticleModel.fromEntity(
+        article.copyWith(savedAt: DateTime.now().toIso8601String())));
   }
 
   @override
