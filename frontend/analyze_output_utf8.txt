@@ -1,0 +1,81 @@
+﻿Analyzing frontend...                                           
+
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\config\theme\app_themes.dart:17:7 - deprecated_member_use
+   info - 'color' is deprecated and shouldn't be used. Use backgroundColor instead. This feature was deprecated after v3.33.0-0.2.pre - lib\config\theme\app_themes.dart:34:5 - deprecated_member_use
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\config\theme\app_themes.dart:78:7 - deprecated_member_use
+   info - 'color' is deprecated and shouldn't be used. Use backgroundColor instead. This feature was deprecated after v3.33.0-0.2.pre - lib\config\theme\app_themes.dart:83:7 - deprecated_member_use
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\core\resources\data_state.dart:1:8 - depend_on_referenced_packages
+   info - 'DioError' is deprecated and shouldn't be used. Use DioException instead. This will be removed in 6.0.0 - lib\core\resources\data_state.dart:5:9 - deprecated_member_use
+   info - 'DioError' is deprecated and shouldn't be used. Use DioException instead. This will be removed in 6.0.0 - lib\core\resources\data_state.dart:15:20 - deprecated_member_use
+   info - The type parameter name 'Type' matches a visible type name - lib\core\usecase\usecase.dart:1:24 - avoid_types_as_parameter_names
+   info - The imported package 'sqflite' isn't a dependency of the importing package - lib\features\daily_news\data\data_sources\local\app_database.dart:5:8 - depend_on_referenced_packages
+   info - Invalid use of a private type in a public API - lib\features\daily_news\data\data_sources\local\app_database.g.dart:13:10 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - lib\features\daily_news\data\data_sources\local\app_database.g.dart:19:10 - library_private_types_in_public_api
+   info - Don't invoke 'print' in production code - lib\features\daily_news\data\data_sources\remote\firebase_article_service.dart:18:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\daily_news\data\data_sources\remote\firebase_article_service.dart:27:7 - avoid_print
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\features\daily_news\data\data_sources\remote\news_api_service.dart:5:8 - depend_on_referenced_packages
+warning - A value for optional parameter 'baseUrl' isn't ever given - lib\features\daily_news\data\data_sources\remote\news_api_service.g.dart:14:10 - unused_element_parameter
+  error - '_NewsApiService.getNewsArticles' ('Future<HttpResponse<List<ArticleModel>>> Function({String? apiKey, String? category, String? country})') isn't a valid override of 'NewsApiService.getNewsArticles' ('Future<HttpResponse<NewsResponseModel>> Function({String? apiKey, String? category, String? country})') - lib\features\daily_news\data\data_sources\remote\news_api_service.g.dart:24:44 - invalid_override
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\features\daily_news\data\repository\article_repository_impl.dart:1:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\features\daily_news\data\repository\article_repository_impl.dart:45:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\daily_news\data\repository\article_repository_impl.dart:48:7 - avoid_print
+warning - The value of the field '_articleRepository' isn't used - lib\features\daily_news\domain\usecases\get_my_articles.dart:8:27 - unused_field
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\features\daily_news\presentation\bloc\article\my_articles\my_articles_state.dart:2:8 - depend_on_referenced_packages
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\features\daily_news\presentation\bloc\article\remote\remote_article_state.dart:2:8 - depend_on_referenced_packages
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\article_detail\article_detail.dart:139:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\article_detail\article_detail.dart:161:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\article_detail\article_detail.dart:190:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\discover\discover_page.dart:90:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\discover\discover_page.dart:91:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:36:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:37:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:87:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:118:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:119:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\profile\profile_page.dart:209:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:232:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:287:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:288:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:290:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:299:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:315:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:324:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:337:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:338:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:340:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:380:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:381:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\pages\publish\publish_news_page.dart:386:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\article_tile.dart:51:43 - deprecated_member_use
+   info - The 'child' argument should be last in widget constructor invocations - lib\features\daily_news\presentation\widgets\article_tile.dart:64:19 - sort_child_properties_last
+   info - Use 'const' with the constructor to improve performance - lib\features\daily_news\presentation\widgets\article_tile.dart:64:26 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\article_tile.dart:66:41 - deprecated_member_use
+   info - The 'child' argument should be last in widget constructor invocations - lib\features\daily_news\presentation\widgets\article_tile.dart:78:19 - sort_child_properties_last
+   info - Use 'const' with the constructor to improve performance - lib\features\daily_news\presentation\widgets\article_tile.dart:78:26 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\article_tile.dart:80:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\article_header.dart:11:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\article_header.dart:28:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\bookmark_item.dart:43:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\category_filter_bar.dart:46:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\category_filter_bar.dart:47:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\discover_search_bar.dart:18:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\discover_search_bar.dart:19:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\discover_search_bar.dart:25:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\discover_search_bar.dart:33:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\font_size_selector.dart:25:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\my_article_card.dart:45:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\my_article_card.dart:61:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\my_article_card.dart:75:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\my_article_card.dart:89:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\profile_stats.dart:15:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\profile_stats.dart:16:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\profile_stats.dart:36:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\trendy_card.dart:24:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\molecules\trendy_card.dart:70:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\organisms\article_actions_bar.dart:36:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\organisms\featured_news_widget.dart:96:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\organisms\featured_news_widget.dart:222:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\organisms\floating_bottom_nav_bar.dart:23:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\daily_news\presentation\widgets\organisms\recent_news_widget.dart:40:40 - deprecated_member_use
+   info - The imported package 'dio' isn't a dependency of the importing package - lib\injection_container.dart:2:8 - depend_on_referenced_packages
+

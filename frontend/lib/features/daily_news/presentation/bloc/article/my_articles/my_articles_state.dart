@@ -4,12 +4,12 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 
 abstract class MyArticlesState extends Equatable {
   final List<ArticleEntity>? articles;
-  final DioError? error;
+  final DioException? error;
 
   const MyArticlesState({this.articles, this.error});
 
   @override
-  List<Object?> get props => [articles!, error!];
+  List<Object?> get props => [articles, error];
 }
 
 class MyArticlesLoading extends MyArticlesState {
@@ -21,5 +21,9 @@ class MyArticlesDone extends MyArticlesState {
 }
 
 class MyArticlesError extends MyArticlesState {
-  const MyArticlesError(DioError error) : super(error: error);
+  const MyArticlesError(DioException error) : super(error: error);
+}
+
+class MyArticlesActionSuccess extends MyArticlesState {
+  const MyArticlesActionSuccess();
 }

@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
+import '../../bloc/article/my_articles/my_articles_bloc.dart';
+import '../../bloc/article/my_articles/my_articles_event.dart';
+import '../../bloc/article/my_articles/my_articles_state.dart';
+import '../../bloc/article/remote/remote_article_bloc.dart';
+import '../../bloc/article/remote/remote_article_event.dart';
 
 class PublishNewsPage extends StatefulWidget {
   const PublishNewsPage({super.key});
@@ -11,7 +19,6 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   String? _selectedCategory = 'Politics';
-  bool _isLoading = false;
   bool _hasImage = false;
 
   final List<String> _categories = [
@@ -29,7 +36,7 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
     super.dispose();
   }
 
-  void _onPublish() async {
+  void _onPublish() {
     // 1. Validation
     if (_titleController.text.trim().isEmpty) {
       _showError('Please enter a title');
@@ -44,22 +51,20 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
       return;
     }
 
-    // 2. Loading State
-    setState(() {
-      _isLoading = true;
-    });
+    final newArticle = ArticleModel(
+        author: 'John Journalist', // Mocked user
+        title: _titleController.text.trim(),
+        description: _contentController.text.trim().length > 100
+            ? '${_contentController.text.trim().substring(0, 100)}...'
+            : _contentController.text.trim(),
+        content: _contentController.text.trim(),
+        category: _selectedCategory,
+        publishedAt: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(DateTime.now()),
+        urlToImage:
+            'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop', // Mock for now, switching to storage later
+        url: '');
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    // 3. Success Notification
-    _showSuccess();
+    context.read<MyArticlesBloc>().add(SaveMyArticle(newArticle));
   }
 
   void _showError(String message) {
@@ -116,121 +121,142 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new,
-                  color: isDark ? Colors.white : Colors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
-            title: Text(
-              'Publish Article',
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title Field
-                _buildSectionLabel('Title'),
-                _buildTextField(
-                  controller: _titleController,
-                  hint: 'Write your title here...',
-                  maxLines: 2,
-                  maxLength: 80,
-                ),
-                const SizedBox(height: 24),
+    return BlocListener<MyArticlesBloc, MyArticlesState>(
+      listener: (context, state) {
+        if (state is MyArticlesActionSuccess) {
+          _showSuccess();
+          // Also refresh the MyArticles list
+          context.read<MyArticlesBloc>().add(const GetMyArticles());
+          // Refresh the main feed (Daily News)
+          context.read<RemoteArticlesBloc>().add(const GetArticles());
+        }
+        if (state is MyArticlesError) {
+          _showError('Failed to publish: ${state.error?.message}');
+        }
+      },
+      child: BlocBuilder<MyArticlesBloc, MyArticlesState>(
+        builder: (context, state) {
+          final isLoading = state is MyArticlesLoading;
 
-                // Category Selector
-                _buildSectionLabel('Category'),
-                _buildCategoryDropdown(theme),
-                const SizedBox(height: 24),
-
-                // Image Picker Mock
-                _buildSectionLabel('Feature Image'),
-                _buildImagePicker(theme),
-                const SizedBox(height: 24),
-
-                // Content Field
-                _buildSectionLabel('Content'),
-                _buildTextField(
-                  controller: _contentController,
-                  hint: 'Add article here...',
-                  maxLines: 10,
-                  helperText:
-                      'You can use Markdown for subtitles and formatting (# Subtitle, **bold**, etc.)',
-                ),
-                const SizedBox(height: 40),
-
-                // Publish Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _onPublish,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5B5FF),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
+          return Stack(
+            children: [
+              Scaffold(
+                backgroundColor: theme.scaffoldBackgroundColor,
+                appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new,
+                        color: isDark ? Colors.white : Colors.black),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  title: Text(
+                    'Publish Article',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  ),
+                  centerTitle: true,
+                ),
+                body: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title Field
+                      _buildSectionLabel('Title'),
+                      _buildTextField(
+                        controller: _titleController,
+                        hint: 'Write your title here...',
+                        maxLines: 2,
+                        maxLength: 80,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Category Selector
+                      _buildSectionLabel('Category'),
+                      _buildCategoryDropdown(theme),
+                      const SizedBox(height: 24),
+
+                      // Image Picker Mock
+                      _buildSectionLabel('Feature Image'),
+                      _buildImagePicker(theme),
+                      const SizedBox(height: 24),
+
+                      // Content Field
+                      _buildSectionLabel('Content'),
+                      _buildTextField(
+                        controller: _contentController,
+                        hint: 'Add article here...',
+                        maxLines: 10,
+                        helperText:
+                            'You can use Markdown for subtitles and formatting (# Subtitle, **bold**, etc.)',
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Publish Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _onPublish,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFB5B5FF),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.publish_rounded),
+                              const SizedBox(width: 12),
+                              Text(
+                                isLoading ? 'Publishing...' : 'Publish Article',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
+              if (isLoading)
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.publish_rounded),
-                        const SizedBox(width: 12),
+                        CircularProgressIndicator(color: Color(0xFFB5B5FF)),
+                        SizedBox(height: 20),
                         Text(
-                          _isLoading ? 'Publishing...' : 'Publish Article',
-                          style: const TextStyle(
+                          'Publishing News...',
+                          style: TextStyle(
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ),
-        if (_isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.5),
-            child: const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(color: Color(0xFFB5B5FF)),
-                  SizedBox(height: 20),
-                  Text(
-                    'Publishing News...',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
+            ],
+          );
+        },
+      ),
     );
   }
 

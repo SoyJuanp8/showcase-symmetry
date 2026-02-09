@@ -14,6 +14,10 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/get_my_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/save_my_article.dart';
 
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
+
+// ... other imports
+
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -26,8 +30,10 @@ Future<void> initializeDependencies() async {
 
   // Dependencies
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
+  sl.registerSingleton<FirebaseArticleService>(FirebaseArticleService());
 
-  sl.registerSingleton<ArticleRepository>(ArticleRepositoryImpl(sl()));
+  sl.registerSingleton<ArticleRepository>(
+      ArticleRepositoryImpl(sl(), sl(), sl()));
 
   //UseCases
   sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
@@ -45,7 +51,7 @@ Future<void> initializeDependencies() async {
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
-  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl()));
+  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl()));
 
   sl.registerFactory<LocalArticleBloc>(
       () => LocalArticleBloc(sl(), sl(), sl()));

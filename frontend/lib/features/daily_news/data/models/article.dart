@@ -54,4 +54,30 @@ class ArticleModel extends ArticleEntity {
       category: entity.category,
     );
   }
+
+  factory ArticleModel.fromFirestore(Map<String, dynamic> map) {
+    return ArticleModel(
+      author: map['author'] ?? "",
+      title: map['title'] ?? "",
+      description: map['description'] ?? "",
+      url: map['url'] ?? "",
+      urlToImage: map['urlToImage'] ?? kDefaultImage,
+      publishedAt: map['publishedAt'] ?? "",
+      content: map['content'] ?? "",
+      category: map['category'] ?? "Community",
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'author': author,
+      'title': title,
+      'description': description,
+      'url': url,
+      'urlToImage': urlToImage,
+      'publishedAt': publishedAt,
+      'content': content,
+      'category': category,
+    };
+  }
 }

@@ -13,6 +13,7 @@ class FontSizeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 160,
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 16,

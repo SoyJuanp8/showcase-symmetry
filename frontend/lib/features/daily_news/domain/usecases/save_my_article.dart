@@ -9,10 +9,6 @@ class SaveMyArticleUseCase implements UseCase<void, ArticleEntity> {
 
   @override
   Future<void> call({ArticleEntity? params}) async {
-    // MOCK IMPLEMENTATION
-    await Future.delayed(const Duration(seconds: 1)); // Simulate delay
-    print("Mock saving article: ${params?.title}");
-    return;
-    // return _articleRepository.saveMyArticle(params!); // We will switch to this later
+    return _articleRepository.saveMyArticle(params!);
   }
 }
