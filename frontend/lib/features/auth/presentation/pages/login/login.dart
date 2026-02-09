@@ -63,41 +63,25 @@ class _LoginPageState extends State<LoginPage> {
       },
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Symmetry News',
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: false,
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 60),
-                // Logo/Title
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Symmetry',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : Colors.black,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        const TextSpan(
-                          text: 'News',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w300,
-                            color: Color(0xFF3A4A7D),
-                            letterSpacing: -1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 60),
+                const SizedBox(height: 20),
                 Text(
                   'Welcome Back',
                   style: TextStyle(

@@ -4,8 +4,8 @@ service cloud.firestore {
     
     // Helper function to validate Article fields
     function isValidArticle(article) {
-      return article.keys().hasAll(['author', 'title', 'description', 'url', 'urlToImage', 'publishedAt', 'content', 'category'])
-        && article.size() == 8
+      return article.keys().hasAll(['author', 'title', 'description', 'url', 'urlToImage', 'publishedAt', 'content', 'category', 'userId'])
+        && article.size() == 9
         && article.author is string
         && article.title is string
         && article.description is string
@@ -13,7 +13,8 @@ service cloud.firestore {
         && article.urlToImage is string
         && article.publishedAt is string
         && article.content is string
-        && article.category is string;
+        && article.category is string
+        && article.userId is string;
     }
 
     match /articles/{articleId} {

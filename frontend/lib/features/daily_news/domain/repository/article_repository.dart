@@ -15,9 +15,13 @@ abstract class ArticleRepository {
   Future<void> removeArticle(ArticleEntity article);
 
   // My Articles (User created)
-  Future<DataState<List<ArticleEntity>>> getMyArticles();
+  Future<DataState<List<ArticleEntity>>> getMyArticles(String userId);
 
   Future<void> saveMyArticle(ArticleEntity article);
+
+  Future<void> editMyArticle(ArticleEntity article);
+
+  Future<void> deleteMyArticle(ArticleEntity article);
 
   Future<String> uploadImage(File file, String path);
 }

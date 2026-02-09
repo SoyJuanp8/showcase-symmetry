@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
+import '../../bloc/navigation/navigation_bloc.dart';
+import '../../widgets/molecules/user_avatar.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key});
@@ -37,17 +42,31 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_none_rounded),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(right: 16.0, left: 8.0),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundImage:
-                NetworkImage('https://i.pravatar.cc/150?u=symmetry'),
-          ),
+        BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            String? photoUrl;
+            String? userName;
+            if (state is Authenticated) {
+              photoUrl = state.user.photoURL;
+              userName = state.user.displayName;
+            }
+            return GestureDetector(
+              onTap: () {
+                // Switch to Profile tab (Index 3)
+                context
+                    .read<NavigationBloc>()
+                    .add(const NavigationTabChanged(3));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0, left: 8.0),
+                child: UserAvatar(
+                  radius: 18,
+                  profileImageUrl: photoUrl,
+                  userName: userName,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -33,7 +34,13 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       if (credential.user != null) {
-        await credential.user!.updateDisplayName(name);
+        try {
+          await credential.user!.updateDisplayName(name);
+          await credential.user!.reload(); // Refresh local user state
+        } catch (e) {
+          debugPrint('Failed to update display name: $e');
+          // We don't rethrow here because the account was already created successfully
+        }
       }
       return credential;
     } catch (e) {
@@ -50,5 +57,29 @@ class AuthRepositoryImpl implements AuthRepository {
   User? get currentUser => _firebaseAuth.currentUser;
 
   @override
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _firebaseAuth.userChanges();
+
+  @override
+  Future<void> updateProfilePhoto(String photoUrl) async {
+    try {
+      if (_firebaseAuth.currentUser != null) {
+        await _firebaseAuth.currentUser!.updatePhotoURL(photoUrl);
+        await _firebaseAuth.currentUser!.reload();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateDisplayName(String name) async {
+    try {
+      if (_firebaseAuth.currentUser != null) {
+        await _firebaseAuth.currentUser!.updateDisplayName(name);
+        await _firebaseAuth.currentUser!.reload();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

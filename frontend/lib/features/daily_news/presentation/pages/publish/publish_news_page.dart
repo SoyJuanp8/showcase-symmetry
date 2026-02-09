@@ -9,9 +9,13 @@ import '../../bloc/article/my_articles/my_articles_event.dart';
 import '../../bloc/article/my_articles/my_articles_state.dart';
 import '../../bloc/article/remote/remote_article_bloc.dart';
 import '../../bloc/article/remote/remote_article_event.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
 class PublishNewsPage extends StatefulWidget {
-  const PublishNewsPage({super.key});
+  final ArticleEntity? article;
+  const PublishNewsPage({super.key, this.article});
 
   @override
   State<PublishNewsPage> createState() => _PublishNewsPageState();
@@ -22,6 +26,15 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
   final _contentController = TextEditingController();
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.article != null) {
+      _titleController.text = widget.article!.title ?? '';
+      _contentController.text = widget.article!.content ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -53,26 +66,44 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
       _showError('Please enter some content');
       return;
     }
-    if (_selectedImage == null) {
+    if (_selectedImage == null && widget.article == null) {
       _showError('Please attach an image');
       return;
     }
 
+    final authState = context.read<AuthBloc>().state;
+    String authorName = 'Symmetry Reporter';
+    String? userId;
+    if (authState is Authenticated) {
+      authorName = authState.user.displayName ?? 'Symmetry Reporter';
+      userId = authState.user.uid;
+    }
+
     final newArticle = ArticleModel(
-        author: 'John Journalist', // Mocked user
+        id: widget.article?.id, // Keep ID for local DB if exists
+        firebaseId: widget.article?.firebaseId, // Keep Firebase ID
+        author: authorName,
+        userId: userId,
         title: _titleController.text.trim(),
         description: _contentController.text.trim().length > 100
             ? '${_contentController.text.trim().substring(0, 100)}...'
             : _contentController.text.trim(),
         content: _contentController.text.trim(),
         category: 'General',
-        publishedAt: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(DateTime.now()),
-        urlToImage: '', // Will be updated by Bloc
-        url: '');
+        publishedAt: widget.article?.publishedAt ??
+            DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(DateTime.now()),
+        urlToImage: widget.article?.urlToImage ?? '',
+        url: widget.article?.url ?? '');
 
-    context
-        .read<MyArticlesBloc>()
-        .add(SaveMyArticle(newArticle, imageFile: _selectedImage));
+    if (widget.article != null) {
+      context
+          .read<MyArticlesBloc>()
+          .add(EditMyArticle(newArticle, imageFile: _selectedImage));
+    } else {
+      context
+          .read<MyArticlesBloc>()
+          .add(SaveMyArticle(newArticle, imageFile: _selectedImage));
+    }
   }
 
   void _showError(String message) {
@@ -99,8 +130,8 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
             Text('Success!', textAlign: TextAlign.center),
           ],
         ),
-        content: const Text(
-          'Your news article has been published successfully and is now live on Symmetry.',
+        content: Text(
+          'Your news article has been ${widget.article != null ? 'updated' : 'published'} successfully and is now live on Symmetry.',
           textAlign: TextAlign.center,
         ),
         actions: [
@@ -217,7 +248,13 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
                               const Icon(Icons.publish_rounded),
                               const SizedBox(width: 12),
                               Text(
-                                isLoading ? 'Publishing...' : 'Publish Article',
+                                isLoading
+                                    ? (widget.article != null
+                                        ? 'Updating...'
+                                        : 'Publishing...')
+                                    : (widget.article != null
+                                        ? 'Update Article'
+                                        : 'Publish Article'),
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -235,15 +272,18 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
               if (isLoading)
                 Container(
                   color: Colors.black.withOpacity(0.5),
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(color: Color(0xFFB5B5FF)),
-                        SizedBox(height: 20),
+                        const CircularProgressIndicator(
+                            color: Color(0xFFB5B5FF)),
+                        const SizedBox(height: 20),
                         Text(
-                          'Publishing News...',
-                          style: TextStyle(
+                          widget.article != null
+                              ? 'Updating News...'
+                              : 'Publishing News...',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -346,10 +386,14 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
               : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: _selectedImage != null
-                  ? const Color(0xFFB5B5FF)
-                  : Colors.grey.withOpacity(0.2),
-              width: _selectedImage != null ? 2 : 1,
+              color:
+                  _selectedImage != null || widget.article?.urlToImage != null
+                      ? const Color(0xFFB5B5FF)
+                      : Colors.grey.withOpacity(0.2),
+              width:
+                  _selectedImage != null || widget.article?.urlToImage != null
+                      ? 2
+                      : 1,
               style: BorderStyle.solid),
           image: _selectedImage != null
               ? DecorationImage(
@@ -357,7 +401,14 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
                   fit: BoxFit.cover,
                   opacity: 0.8,
                 )
-              : null,
+              : (widget.article?.urlToImage != null &&
+                      widget.article!.urlToImage!.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(widget.article!.urlToImage!),
+                      fit: BoxFit.cover,
+                      opacity: 0.8,
+                    )
+                  : null),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -365,26 +416,33 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _selectedImage != null
-                    ? Colors.green
-                    : const Color(0xFFB5B5FF),
+                color:
+                    _selectedImage != null || widget.article?.urlToImage != null
+                        ? Colors.green
+                        : const Color(0xFFB5B5FF),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                  _selectedImage != null
+                  _selectedImage != null || widget.article?.urlToImage != null
                       ? Icons.check_rounded
                       : Icons.add_a_photo_rounded,
-                  color: _selectedImage != null ? Colors.white : Colors.black,
+                  color: _selectedImage != null ||
+                          widget.article?.urlToImage != null
+                      ? Colors.white
+                      : Colors.black,
                   size: 30),
             ),
             const SizedBox(height: 12),
             Text(
-              _selectedImage != null
+              _selectedImage != null || widget.article?.urlToImage != null
                   ? 'Image Selected (Tap to Change)'
                   : 'Attach Image from Gallery',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: _selectedImage != null ? Colors.white : Colors.grey,
+                color:
+                    _selectedImage != null || widget.article?.urlToImage != null
+                        ? Colors.white
+                        : Colors.grey,
               ),
             ),
           ],

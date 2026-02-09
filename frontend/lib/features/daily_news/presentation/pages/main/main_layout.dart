@@ -10,16 +10,28 @@ import 'package:news_app_clean_architecture/injection_container.dart';
 import '../../bloc/article/remote/remote_article_bloc.dart';
 import '../../bloc/article/remote/remote_article_event.dart';
 
-class MainLayout extends StatefulWidget {
+import '../../bloc/navigation/navigation_bloc.dart';
+
+class MainLayout extends StatelessWidget {
   const MainLayout({super.key});
 
   @override
-  State<MainLayout> createState() => _MainLayoutState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => NavigationBloc(),
+      child: const _MainLayoutView(),
+    );
+  }
 }
 
-class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 0;
+class _MainLayoutView extends StatefulWidget {
+  const _MainLayoutView();
 
+  @override
+  State<_MainLayoutView> createState() => _MainLayoutViewState();
+}
+
+class _MainLayoutViewState extends State<_MainLayoutView> {
   final List<Widget> _pages = [
     const MyArticlesPage(),
     BlocProvider<RemoteArticlesBloc>(
@@ -32,20 +44,22 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: false,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: FloatingBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+    return BlocBuilder<NavigationBloc, NavigationState>(
+      builder: (context, state) {
+        return Scaffold(
+          extendBody: false,
+          body: IndexedStack(
+            index: state.index,
+            children: _pages,
+          ),
+          bottomNavigationBar: FloatingBottomNavBar(
+            currentIndex: state.index,
+            onTap: (index) {
+              context.read<NavigationBloc>().add(NavigationTabChanged(index));
+            },
+          ),
+        );
+      },
     );
   }
 }

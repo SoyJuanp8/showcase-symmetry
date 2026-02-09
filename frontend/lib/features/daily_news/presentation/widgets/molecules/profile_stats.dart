@@ -2,52 +2,60 @@ import 'package:flutter/material.dart';
 
 class ProfileStats extends StatelessWidget {
   final VoidCallback onTap;
-  const ProfileStats({super.key, required this.onTap});
+  final bool isExpanded;
+
+  const ProfileStats({
+    super.key,
+    required this.onTap,
+    required this.isExpanded,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
+          color: isDark
               ? Colors.white.withOpacity(0.05)
               : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildStatColumn('Articles', '150+', context),
+            Row(
+              children: [
+                Icon(
+                  Icons.article_rounded,
+                  color: theme.colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'My Articles',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            Icon(
+              isExpanded
+                  ? Icons.keyboard_arrow_up_rounded
+                  : Icons.keyboard_arrow_down_rounded,
+              color: Colors.grey,
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatColumn(String label, String value, BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Color(0xFF3A4A7D),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 }

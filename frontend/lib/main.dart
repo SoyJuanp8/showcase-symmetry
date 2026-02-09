@@ -54,14 +54,16 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             if (state is Authenticated) {
               return const MainLayout();
-            } else if (state is Unauthenticated) {
-              return const LoginPage();
-            } else {
+            } else if (state is AuthInitial) {
               return const Scaffold(
                 body: Center(
                   child: CircularProgressIndicator(color: Color(0xFF3A4A7D)),
                 ),
               );
+            } else {
+              // Shows LoginPage for Unauthenticated, AuthLoading, and AuthError
+              // This prevents the page from being disposed during the login request
+              return const LoginPage();
             }
           },
         ),

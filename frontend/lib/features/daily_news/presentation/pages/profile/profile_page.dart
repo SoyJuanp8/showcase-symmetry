@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
@@ -7,8 +8,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_event.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/update_profile_photo.dart';
 import '../../widgets/molecules/profile_stats.dart';
-import '../publish/publish_news_page.dart';
+import '../../widgets/molecules/user_avatar.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_event.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/publish/publish_news_page.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -44,6 +53,17 @@ class _ProfilePageState extends State<ProfilePage> {
         final url = await uploadUseCase(
             params: UploadImageParams(file: File(image.path), path: path));
 
+        // Update Firebase User Profile
+        final updateProfilePhoto = sl<UpdateProfilePhotoUseCase>();
+        await updateProfilePhoto(params: url);
+
+        // Force AuthBloc to refresh user data
+        if (context.mounted) {
+          context.read<AuthBloc>().add(
+                AuthUserChanged(FirebaseAuth.instance.currentUser),
+              );
+        }
+
         setState(() {
           _profileImageUrl = url;
           _isUploading = false;
@@ -68,22 +88,30 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 60), // Increased top spacing
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                if (state is Authenticated) {
-                  return _buildAuthenticatedContent(context, theme, state);
-                } else if (state is Unauthenticated) {
-                  return _buildUnauthenticatedContent(context, theme);
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-          ],
+      body: BlocListener<MyArticlesBloc, MyArticlesState>(
+        listener: (context, state) {
+          if (state is MyArticlesActionSuccess) {
+            // Refresh remote articles when a user article is changed (deleted/edited/added)
+            context.read<RemoteArticlesBloc>().add(const GetArticles());
+          }
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 60), // Increased top spacing
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  if (state is Authenticated) {
+                    return _buildAuthenticatedContent(context, theme, state);
+                  } else if (state is Unauthenticated) {
+                    return _buildUnauthenticatedContent(context, theme);
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -102,23 +130,28 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 120,
                 width: 120,
                 decoration: BoxDecoration(
-                  color: theme.brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.05)
-                      : Colors.grey.withOpacity(0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: theme.colorScheme.primary.withOpacity(0.5),
                     width: 2,
                   ),
-                  image: DecorationImage(
-                    image:
-                        NetworkImage(state.user.photoURL ?? _profileImageUrl),
-                    fit: BoxFit.cover,
-                  ),
                 ),
-                child: _isUploading
-                    ? const Center(child: CircularProgressIndicator())
-                    : null,
+                child: Stack(
+                  children: [
+                    UserAvatar(
+                      radius: 60,
+                      profileImageUrl: state.user.photoURL ?? _profileImageUrl,
+                      userName: state.user.displayName,
+                      fontSize: 40,
+                    ),
+                    if (_isUploading)
+                      Container(
+                        decoration: const BoxDecoration(
+                            color: Colors.black45, shape: BoxShape.circle),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                ),
               ),
               GestureDetector(
                 onTap: _updateProfilePicture,
@@ -146,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               Text(
-                state.user.displayName ?? 'Alexi Turner',
+                state.user.displayName ?? 'News Reader',
                 style:
                     const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
               ),
@@ -168,6 +201,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              // Edit Profile Button
+              GestureDetector(
+                onTap: () =>
+                    _showEditProfileDialog(context, state.user.displayName),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.2) ??
+                              Colors.grey,
+                    ),
+                  ),
+                  child: Text(
+                    'Edit Name',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -178,13 +241,17 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               ProfileStats(
+                isExpanded: _showArticlesList,
                 onTap: () {
                   setState(() {
                     _showArticlesList = !_showArticlesList;
+                    if (_showArticlesList) {
+                      context.read<MyArticlesBloc>().add(const GetMyArticles());
+                    }
                   });
                 },
               ),
-              if (_showArticlesList) _buildRecentArticles(theme),
+              if (_showArticlesList) _buildMyArticles(theme),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -192,8 +259,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: ElevatedButton(
                   onPressed: () => _showPublishOptions(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFB5B5FF),
-                    foregroundColor: Colors.black,
+                    backgroundColor: const Color(0xFF3A4A7D),
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)),
                     elevation: 0,
@@ -205,15 +272,25 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 16),
               // Logout Button
+              // Logout Button
               SizedBox(
                 width: double.infinity,
-                child: TextButton.icon(
+                height: 60,
+                child: ElevatedButton(
                   onPressed: () {
                     context.read<AuthBloc>().add(LogoutRequested());
                   },
-                  icon: const Icon(Icons.logout_rounded, color: Colors.red),
-                  label: const Text('Log Out',
-                      style: TextStyle(color: Colors.red)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent.withOpacity(0.1),
+                    foregroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    elevation: 0,
+                    side: const BorderSide(color: Colors.red, width: 1.5),
+                  ),
+                  child: const Text('Log Out',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 100),
@@ -276,7 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildRecentArticles(ThemeData theme) {
+  Widget _buildMyArticles(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Container(
@@ -290,19 +367,69 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Recent Articles',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 12),
-            _buildArticleListItem('The Future of AI in News', '2 days ago'),
-            _buildArticleListItem('Global Tech Summits 2026', '5 days ago'),
-            _buildArticleListItem('Cybersecurity Trends', '1 week ago'),
+            BlocBuilder<MyArticlesBloc, MyArticlesState>(
+              builder: (context, state) {
+                if (state is MyArticlesLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is MyArticlesDone) {
+                  if (state.articles!.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                          child:
+                              Text("You haven't published any articles yet.")),
+                    );
+                  }
+                  return Column(
+                    children: state.articles!.map((article) {
+                      return _buildArticleListItem(article);
+                    }).toList(),
+                  );
+                } else if (state is MyArticlesError) {
+                  return Text('Error: ${state.error?.message}');
+                }
+                return const SizedBox();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildArticleListItem(String title, String date) {
+  void _showEditProfileDialog(BuildContext context, String? currentName) {
+    final nameController = TextEditingController(text: currentName);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Profile'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Display Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  context.read<AuthBloc>().add(UpdateUserDisplayName(newName));
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildArticleListItem(ArticleEntity article) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -312,13 +439,27 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              title,
+              article.title ?? '',
               style: const TextStyle(fontWeight: FontWeight.w500),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text(
-            date,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          IconButton(
+            icon: const Icon(Icons.edit, size: 20, color: Colors.blueAccent),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PublishNewsPage(article: article),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline,
+                size: 20, color: Colors.redAccent),
+            onPressed: () => _confirmDeleteArticle(context, article),
           ),
         ],
       ),
@@ -329,6 +470,30 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PublishNewsPage()),
+    );
+  }
+
+  void _confirmDeleteArticle(BuildContext context, ArticleEntity article) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Article'),
+        content: const Text(
+            'Are you sure you want to delete this article? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<MyArticlesBloc>().add(DeleteMyArticle(article));
+              Navigator.pop(context);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }

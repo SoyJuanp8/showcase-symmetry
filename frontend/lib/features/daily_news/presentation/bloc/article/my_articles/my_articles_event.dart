@@ -14,3 +14,14 @@ class SaveMyArticle extends MyArticlesEvent {
   final File? imageFile;
   const SaveMyArticle(this.article, {this.imageFile});
 }
+
+class EditMyArticle extends MyArticlesEvent {
+  final ArticleEntity article;
+  final File? imageFile;
+  const EditMyArticle(this.article, {this.imageFile});
+}
+
+class DeleteMyArticle extends MyArticlesEvent {
+  final ArticleEntity article;
+  const DeleteMyArticle(this.article);
+}

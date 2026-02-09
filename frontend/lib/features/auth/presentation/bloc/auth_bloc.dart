@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/register.dart';
@@ -5,12 +6,14 @@ import '../../domain/usecases/logout.dart';
 import '../../domain/repository/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
+import 'dart:async';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
   final LogoutUseCase _logoutUseCase;
   final AuthRepository _authRepository;
+  StreamSubscription<User?>? _authStateSubscription;
 
   AuthBloc({
     required LoginUseCase loginUseCase,
@@ -23,15 +26,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _authRepository = authRepository,
         super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
+    on<AuthUserChanged>(_onAuthUserChanged);
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<UpdateUserDisplayName>(_onUpdateUserDisplayName);
   }
 
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
-    final user = _authRepository.currentUser;
-    if (user != null) {
-      emit(Authenticated(user));
+    // Cancel existing subscription if any
+    await _authStateSubscription?.cancel();
+
+    // Subscribe to auth state changes
+    _authStateSubscription = _authRepository.authStateChanges.listen((user) {
+      if (user != null) {
+        // We can't emit directly from the listener because it's async and outside the bloc's event loop in a clean way without add(),
+        // but since we are inside _onAppStarted we can't emit for *future* events here easily unless we add a new event type.
+        // However, for simplicity, checking currentUser initially is fine,
+        // BUT to support real-time updates (like profile photo), we should add a specific event 'AuthUserChanged'.
+        add(AuthUserChanged(user));
+      } else {
+        add(const AuthUserChanged(null));
+      }
+    });
+  }
+
+  Future<void> _onAuthUserChanged(
+      AuthUserChanged event, Emitter<AuthState> emit) async {
+    if (event.user != null) {
+      emit(Authenticated(event.user!));
     } else {
       emit(Unauthenticated());
     }
@@ -49,6 +72,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } else {
         emit(const AuthError('Login failed: User is null'));
       }
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError(_mapErrorToMessage(e.code)));
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -57,6 +82,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegisterRequested(
       RegisterRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
+    // Pause subscription to avoid auto-login triggering Authenticated state
+    _authStateSubscription?.pause();
     try {
       final credential = await _registerUseCase(
         params: RegisterParams(
@@ -66,12 +93,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
       if (credential?.user != null) {
-        emit(Authenticated(credential!.user!));
+        // Sign out immediately to force manual login
+        await _logoutUseCase();
+        emit(RegistrationSuccess());
       } else {
         emit(const AuthError('Registration failed: User is null'));
       }
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError(_mapErrorToMessage(e.code)));
     } catch (e) {
       emit(AuthError(e.toString()));
+    } finally {
+      // Resume subscription
+      _authStateSubscription?.resume();
     }
   }
 
@@ -80,5 +114,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     await _logoutUseCase();
     emit(Unauthenticated());
+  }
+
+  Future<void> _onUpdateUserDisplayName(
+      UpdateUserDisplayName event, Emitter<AuthState> emit) async {
+    try {
+      await _authRepository.updateDisplayName(event.name);
+      // Determine current state to re-emit with updated user
+      // Actually, authStateChanges stream should handle the update since we reload user in repo.
+      // But just in case, we can manually emit if needed. The stream is safer.
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  String _mapErrorToMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No user found with this email.';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'operation-not-allowed':
+        return 'Server error. Please try again later.';
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+      case 'network-request-failed':
+        return 'Network error. Please check your connection.';
+      default:
+        return 'An unexpected error occurred. Please try again.';
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _authStateSubscription?.cancel();
+    return super.close();
   }
 }

@@ -13,6 +13,9 @@ import 'features/daily_news/presentation/bloc/article/local/local_article_bloc.d
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/get_my_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/save_my_article.dart';
+import 'features/daily_news/domain/usecases/edit_my_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/delete_my_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/navigation/navigation_bloc.dart';
 
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
@@ -24,6 +27,7 @@ import 'package:news_app_clean_architecture/features/auth/data/repository/auth_r
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/login.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/register.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/logout.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/update_profile_photo.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 
 final sl = GetIt.instance;
@@ -61,19 +65,27 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<SaveMyArticleUseCase>(SaveMyArticleUseCase(sl()));
 
+  sl.registerSingleton<EditMyArticleUseCase>(EditMyArticleUseCase(sl()));
+
+  sl.registerSingleton<DeleteMyArticleUseCase>(DeleteMyArticleUseCase(sl()));
+
   sl.registerSingleton<UploadImageUseCase>(UploadImageUseCase(sl()));
 
   sl.registerSingleton<SearchArticleUseCase>(SearchArticleUseCase(sl()));
 
   // Auth UseCases
+  // Auth UseCases
   sl.registerSingleton<LoginUseCase>(LoginUseCase(sl()));
   sl.registerSingleton<RegisterUseCase>(RegisterUseCase(sl()));
   sl.registerSingleton<LogoutUseCase>(LogoutUseCase(sl()));
+  sl.registerSingleton<UpdateProfilePhotoUseCase>(
+      UpdateProfilePhotoUseCase(sl()));
 
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl(), sl()));
 
-  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl(), sl()));
+  sl.registerFactory<MyArticlesBloc>(
+      () => MyArticlesBloc(sl(), sl(), sl(), sl(), sl()));
 
   sl.registerFactory<LocalArticleBloc>(
       () => LocalArticleBloc(sl(), sl(), sl()));
@@ -84,4 +96,6 @@ Future<void> initializeDependencies() async {
         logoutUseCase: sl(),
         authRepository: sl(),
       ));
+
+  sl.registerFactory<NavigationBloc>(() => NavigationBloc());
 }

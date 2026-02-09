@@ -113,9 +113,10 @@ class ArticleRepositoryImpl implements ArticleRepository {
   }
 
   @override
-  Future<DataState<List<ArticleModel>>> getMyArticles() async {
+  Future<DataState<List<ArticleModel>>> getMyArticles(String userId) async {
     try {
-      final articles = await _firebaseArticleService.getArticles();
+      final articles =
+          await _firebaseArticleService.getArticlesByUserId(userId);
       return DataSuccess(articles);
     } catch (e) {
       return DataFailed(DioException(
@@ -130,6 +131,17 @@ class ArticleRepositoryImpl implements ArticleRepository {
   Future<void> saveMyArticle(ArticleEntity article) {
     return _firebaseArticleService
         .publishArticle(ArticleModel.fromEntity(article));
+  }
+
+  @override
+  Future<void> editMyArticle(ArticleEntity article) {
+    return _firebaseArticleService
+        .editArticle(ArticleModel.fromEntity(article));
+  }
+
+  @override
+  Future<void> deleteMyArticle(ArticleEntity article) {
+    return _firebaseArticleService.deleteArticle(article.firebaseId!);
   }
 
   @override

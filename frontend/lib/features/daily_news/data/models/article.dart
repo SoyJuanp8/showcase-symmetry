@@ -18,6 +18,8 @@ class ArticleModel extends ArticleEntity {
     String? category,
     Source? source,
     String? savedAt,
+    String? userId,
+    String? firebaseId,
   }) : super(
           id: id,
           author: author,
@@ -30,6 +32,8 @@ class ArticleModel extends ArticleEntity {
           category: category,
           source: source,
           savedAt: savedAt,
+          userId: userId,
+          firebaseId: firebaseId,
         );
 
   factory ArticleModel.fromJson(Map<String, dynamic> map) {
@@ -47,6 +51,8 @@ class ArticleModel extends ArticleEntity {
       source:
           map['source'] != null ? SourceModel.fromJson(map['source']) : null,
       savedAt: map['savedAt'] ?? "",
+      userId: map['userId'],
+      firebaseId: map['firebaseId'],
     );
   }
 
@@ -63,10 +69,12 @@ class ArticleModel extends ArticleEntity {
       category: entity.category,
       source: entity.source,
       savedAt: entity.savedAt,
+      userId: entity.userId,
+      firebaseId: entity.firebaseId,
     );
   }
 
-  factory ArticleModel.fromFirestore(Map<String, dynamic> map) {
+  factory ArticleModel.fromFirestore(Map<String, dynamic> map, String id) {
     return ArticleModel(
       author: map['author'] ?? "",
       title: map['title'] ?? "",
@@ -77,6 +85,8 @@ class ArticleModel extends ArticleEntity {
       content: map['content'] ?? "",
       category: map['category'] ?? "Community",
       source: const SourceModel(id: 'community', name: 'Community'),
+      userId: map['userId'],
+      firebaseId: id,
     );
   }
 
@@ -90,6 +100,7 @@ class ArticleModel extends ArticleEntity {
       'publishedAt': publishedAt,
       'content': content,
       'category': category,
+      'userId': userId,
     };
   }
 }
