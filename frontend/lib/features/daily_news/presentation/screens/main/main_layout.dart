@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../pages/home/my_articles.dart';
-import '../../pages/discover/discover_page.dart';
-import '../../pages/saved/saved_articles.dart';
-import '../../pages/profile/profile_page.dart';
+import '../../screens/home/my_articles.dart';
+import '../../screens/discover/discover_page.dart';
+import '../../screens/saved/saved_articles.dart';
+import '../../screens/profile/profile_page.dart';
 import '../../widgets/organisms/floating_bottom_nav_bar.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';

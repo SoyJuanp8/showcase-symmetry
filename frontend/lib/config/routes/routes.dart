@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../features/daily_news/domain/entities/article.dart';
-import '../../features/daily_news/presentation/pages/article_detail/article_detail.dart';
-import '../../features/daily_news/presentation/pages/home/daily_news.dart';
-import '../../features/daily_news/presentation/pages/home/story_view_page.dart';
-import '../../features/auth/presentation/pages/login/login.dart';
-import '../../features/auth/presentation/pages/register/register.dart';
-import '../../features/daily_news/presentation/pages/profile/profile_page.dart';
-import '../../features/daily_news/presentation/pages/saved/saved_articles.dart';
+import '../../features/daily_news/presentation/screens/article_detail/article_detail.dart';
+import '../../features/daily_news/presentation/screens/home/daily_news.dart';
+import '../../features/daily_news/presentation/screens/home/story_view_page.dart';
+import '../../features/auth/presentation/screens/login/login.dart';
+import '../../features/auth/presentation/screens/register/register.dart';
+import '../../features/daily_news/presentation/screens/profile/profile_page.dart';
+import '../../features/daily_news/presentation/screens/saved/saved_articles.dart';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {

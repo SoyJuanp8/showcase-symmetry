@@ -7,16 +7,16 @@ import 'config/theme/app_themes.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/local/local_article_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/local/local_article_event.dart';
-import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/main/main_layout.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/main/main_layout.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_event.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_event.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
-import 'package:news_app_clean_architecture/features/auth/presentation/pages/login/login.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/login/login.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_state.dart';
-import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/splash/splash_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/splash/splash_screen.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 
 Future<void> main() async {
