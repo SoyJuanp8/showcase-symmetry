@@ -5,8 +5,10 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/models/comment.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/comment.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/article_repository.dart';
 import 'package:news_app_clean_architecture/core/constants/constants.dart';
 
@@ -142,6 +144,22 @@ class ArticleRepositoryImpl implements ArticleRepository {
   @override
   Future<void> deleteMyArticle(ArticleEntity article) {
     return _firebaseArticleService.deleteArticle(article.firebaseId!);
+  }
+
+  @override
+  Stream<ArticleEntity?> getArticleStream(String articleId) {
+    return _firebaseArticleService.getArticleStream(articleId);
+  }
+
+  @override
+  Future<void> toggleLike(ArticleEntity article, String userId) {
+    return _firebaseArticleService.toggleLike(article, userId);
+  }
+
+  @override
+  Future<void> addComment(ArticleEntity article, CommentEntity comment) {
+    return _firebaseArticleService.addComment(
+        article, CommentModel.fromEntity(comment));
   }
 
   @override

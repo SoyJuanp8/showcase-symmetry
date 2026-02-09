@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:like_button/like_button.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_event.dart';
 import '../../../domain/entities/article.dart';
 import '../../bloc/article/local/local_article_bloc.dart';
 import '../../bloc/article/local/local_article_event.dart';
@@ -90,21 +94,35 @@ class ArticleActionsBar extends StatelessWidget {
   }
 
   Widget _buildLikeButton(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    final userId = authState is Authenticated ? authState.user.uid : null;
+    final isLiked =
+        userId != null && (article.likes?.contains(userId) ?? false);
+
     return LikeButton(
       size: 24,
+      isLiked: isLiked,
       circleColor:
           const CircleColor(start: Color(0xFF3A4A7D), end: Color(0xFF3A4A7D)),
       bubblesColor: const BubblesColor(
           dotPrimaryColor: Color(0xFF3A4A7D), dotSecondaryColor: Colors.orange),
-      likeBuilder: (bool isLiked) {
+      likeBuilder: (bool liked) {
         return Icon(
-          isLiked ? Icons.favorite : Icons.favorite_outline,
-          color: isLiked ? const Color(0xFF3A4A7D) : Colors.white,
+          liked ? Icons.favorite : Icons.favorite_outline,
+          color: liked ? const Color(0xFF3A4A7D) : Colors.white,
           size: 24,
         );
       },
-      likeCount: 22, // Mock count
-      countBuilder: (int? count, bool isLiked, String text) {
+      onTap: (liked) async {
+        if (userId == null) {
+          onShowSnackBar(context, 'Sign in to like');
+          return liked;
+        }
+        context.read<ArticleDetailBloc>().add(ToggleLikeArticle(userId));
+        return !liked;
+      },
+      likeCount: article.likes?.length ?? 0,
+      countBuilder: (int? count, bool liked, String text) {
         return Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 12),

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/source.dart';
+import '../../domain/entities/comment.dart';
 
 class ArticleEntity extends Equatable {
   final int? id;
@@ -15,6 +16,8 @@ class ArticleEntity extends Equatable {
   final String? savedAt;
   final String? userId;
   final String? firebaseId;
+  final List<String>? likes; // List of userIds
+  final List<CommentEntity>? comments;
 
   const ArticleEntity({
     this.id,
@@ -30,6 +33,8 @@ class ArticleEntity extends Equatable {
     this.savedAt,
     this.userId,
     this.firebaseId,
+    this.likes,
+    this.comments,
   });
 
   @override
@@ -48,6 +53,8 @@ class ArticleEntity extends Equatable {
       savedAt,
       userId,
       firebaseId,
+      likes,
+      comments,
     ];
   }
 
@@ -65,6 +72,8 @@ class ArticleEntity extends Equatable {
     String? savedAt,
     String? userId,
     String? firebaseId,
+    List<String>? likes,
+    List<CommentEntity>? comments,
   }) {
     return ArticleEntity(
       id: id ?? this.id,
@@ -80,6 +89,15 @@ class ArticleEntity extends Equatable {
       savedAt: savedAt ?? this.savedAt,
       userId: userId ?? this.userId,
       firebaseId: firebaseId ?? this.firebaseId,
+      likes: likes ?? this.likes,
+      comments: comments ?? this.comments,
     );
+  }
+
+  String get socialId {
+    if (firebaseId != null) return firebaseId!;
+    // Use URL as unique identifier for API articles
+    return url?.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_') ??
+        'unknown_${title.hashCode}';
   }
 }

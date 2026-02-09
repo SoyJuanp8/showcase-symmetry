@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import '../../models/article.dart';
+import '../../models/comment.dart';
 
 class FirebaseArticleService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -84,6 +86,61 @@ class FirebaseArticleService {
       await _firestore.collection('articles').doc(firebaseId).delete();
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Stream<ArticleModel?> getArticleStream(String articleId) {
+    return _firestore.collection('articles').doc(articleId).snapshots().map(
+        (snapshot) => snapshot.exists
+            ? ArticleModel.fromFirestore(snapshot.data()!, snapshot.id)
+            : null);
+  }
+
+  Future<void> toggleLike(ArticleEntity article, String userId) async {
+    final articleId = article.socialId;
+    final docRef = _firestore.collection('articles').doc(articleId);
+
+    // Use transaction or simple get/set. Let's use get/set for simplicity
+    // but optimized to create if not exists.
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      final model = ArticleModel.fromEntity(article);
+      await docRef.set({
+        ...model.toFirestore(),
+        'likes': [userId],
+        'comments': [],
+      });
+    } else {
+      List<dynamic> likes = snapshot.data()?['likes'] ?? [];
+      if (likes.contains(userId)) {
+        await docRef.update({
+          'likes': FieldValue.arrayRemove([userId])
+        });
+      } else {
+        await docRef.update({
+          'likes': FieldValue.arrayUnion([userId])
+        });
+      }
+    }
+  }
+
+  Future<void> addComment(ArticleEntity article, CommentModel comment) async {
+    final articleId = article.socialId;
+    final docRef = _firestore.collection('articles').doc(articleId);
+
+    final snapshot = await docRef.get();
+    if (!snapshot.exists) {
+      final model = ArticleModel.fromEntity(article);
+      await docRef.set({
+        ...model.toFirestore(),
+        'likes': [],
+        'comments': [comment.toJson()],
+      });
+    } else {
+      await docRef.update({
+        'comments': FieldValue.arrayUnion([comment.toJson()])
+      });
     }
   }
 }

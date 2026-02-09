@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_event.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_state.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/comment.dart';
+import 'package:uuid/uuid.dart';
+import 'package:news_app_clean_architecture/injection_container.dart';
 import '../../../domain/entities/article.dart';
 import '../../widgets/molecules/article_header.dart';
 import '../../widgets/molecules/font_size_selector.dart';
@@ -17,8 +28,15 @@ class ArticleDetailsView extends StatefulWidget {
 class _ArticleDetailsViewState extends State<ArticleDetailsView> {
   double _bodyFontSize = 18.0;
   int _selectedIndex = -1;
+  final TextEditingController _commentController = TextEditingController();
 
-  void _onActionSelected(int index) {
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  void _onActionSelected(int index, BuildContext context) {
     setState(() {
       if (_selectedIndex == index) {
         _selectedIndex = -1;
@@ -27,7 +45,7 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
       }
     });
 
-    if (index == 1) _showComments();
+    if (index == 1) _showComments(context);
     if (index == 4) _handleShare();
   }
 
@@ -40,48 +58,65 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          sl<ArticleDetailBloc>()..add(GetArticleDetail(widget.article)),
+      child: Builder(builder: (context) {
+        return _buildScaffold(context);
+      }),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     final theme = Theme.of(context);
-    final article = widget.article;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          // Main Content
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 80, 20, 150),
-              child: _buildContent(article, theme),
-            ),
-          ),
+      body: BlocBuilder<ArticleDetailBloc, ArticleDetailState>(
+        builder: (context, state) {
+          final article = state.article ?? widget.article;
 
-          // Molecule: Custom Header
-          const Positioned(top: 0, left: 0, right: 0, child: ArticleHeader()),
-
-          // Molecule: Font Size Menu Overlay
-          if (_selectedIndex == 3)
-            Positioned(
-              bottom: 90,
-              right: 75,
-              child: FontSizeSelector(
-                currentSize: _bodyFontSize,
-                onSizeSelected: _onFontSizeChanged,
+          return Stack(
+            children: [
+              // Main Content
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 80, 20, 150),
+                  child: _buildContent(article, theme),
+                ),
               ),
-            ),
 
-          // Organism: Floating Bottom Bar
-          Positioned(
-            bottom: 30,
-            left: 40,
-            right: 40,
-            child: ArticleActionsBar(
-              article: article,
-              selectedIndex: _selectedIndex,
-              onActionSelected: _onActionSelected,
-              onShowSnackBar: _showModernSnackBar,
-            ),
-          ),
-        ],
+              // Molecule: Custom Header
+              const Positioned(
+                  top: 0, left: 0, right: 0, child: ArticleHeader()),
+
+              // Molecule: Font Size Menu Overlay
+              if (_selectedIndex == 3)
+                Positioned(
+                  bottom: 90,
+                  right: 75,
+                  child: FontSizeSelector(
+                    currentSize: _bodyFontSize,
+                    onSizeSelected: _onFontSizeChanged,
+                  ),
+                ),
+
+              // Organism: Floating Bottom Bar
+              Positioned(
+                bottom: 30,
+                left: 40,
+                right: 40,
+                child: ArticleActionsBar(
+                  article: article,
+                  selectedIndex: _selectedIndex,
+                  onActionSelected: (index) =>
+                      _onActionSelected(index, context),
+                  onShowSnackBar: _showModernSnackBar,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -111,7 +146,7 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
       'By ${article.author ?? 'Anonymous'}  ·  ${article.publishedAt?.split('T')[0] ?? 'Today'}',
       style: TextStyle(
         color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-        fontSize: 14,
+        fontSize: _bodyFontSize * 0.77, // Scaled from 14
       ),
     );
   }
@@ -120,7 +155,7 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
     return Text(
       article.title ?? 'Untitled',
       style: theme.textTheme.displayLarge?.copyWith(
-        fontSize: 28,
+        fontSize: _bodyFontSize * 1.55, // Scaled from 28
         fontWeight: FontWeight.w900,
         height: 1.2,
       ),
@@ -131,7 +166,7 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
     return Text(
       article.description ?? 'No description available for this article.',
       style: TextStyle(
-        fontSize: 16,
+        fontSize: _bodyFontSize * 0.88, // Scaled from 16
         color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
         height: 1.5,
       ),
@@ -169,25 +204,96 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
   }
 
   Widget _buildArticleText(ArticleEntity article, ThemeData theme) {
-    return MarkdownBody(
-      data: article.content ?? 'No content available.',
-      styleSheet: MarkdownStyleSheet(
-        p: theme.textTheme.bodyLarge?.copyWith(
-          fontSize: _bodyFontSize,
-          height: 1.6,
+    // Check if the content is truncated (common with NewsAPI)
+    final isTruncated = article.content?.contains('[+') ?? false;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MarkdownBody(
+          data: article.content ?? 'No content available.',
+          styleSheet: MarkdownStyleSheet(
+            p: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: _bodyFontSize,
+              height: 1.6,
+            ),
+            h1: theme.textTheme.displayLarge?.copyWith(
+              fontSize: _bodyFontSize + 8,
+              fontWeight: FontWeight.bold,
+            ),
+            h2: theme.textTheme.displayLarge?.copyWith(
+              fontSize: _bodyFontSize + 4,
+              fontWeight: FontWeight.bold,
+            ),
+            strong: const TextStyle(fontWeight: FontWeight.bold),
+            em: const TextStyle(fontStyle: FontStyle.italic),
+            listBullet: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: _bodyFontSize,
+            ),
+          ),
         ),
-        h1: theme.textTheme.displayLarge?.copyWith(
-          fontSize: _bodyFontSize + 8,
-          fontWeight: FontWeight.bold,
+        if (isTruncated && article.url != null) ...[
+          const SizedBox(height: 32),
+          _buildReadMoreButton(article.url!, theme),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildReadMoreButton(String url, ThemeData theme) {
+    return Center(
+      child: Container(
+        width: double.infinity,
+        height: 60,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF3A4A7D), Color(0xFF2E3B65)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3A4A7D).withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        h2: theme.textTheme.displayLarge?.copyWith(
-          fontSize: _bodyFontSize + 4,
-          fontWeight: FontWeight.bold,
-        ),
-        strong: const TextStyle(fontWeight: FontWeight.bold),
-        em: const TextStyle(fontStyle: FontStyle.italic),
-        listBullet: theme.textTheme.bodyLarge?.copyWith(
-          fontSize: _bodyFontSize,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () async {
+              try {
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  _showModernSnackBar(context, 'Could not open the link');
+                }
+              } catch (e) {
+                _showModernSnackBar(
+                    context, 'Error opening link. Try restarting the app.');
+              }
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: const Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Read Full Story',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.open_in_new, color: Colors.white, size: 20),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -221,55 +327,121 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
     );
   }
 
-  void _showComments() {
+  void _showComments(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
+      builder: (modalContext) => BlocProvider.value(
+        value: context.read<ArticleDetailBloc>(),
+        child: BlocBuilder<ArticleDetailBloc, ArticleDetailState>(
+          builder: (context, state) {
+            final comments = state.article?.comments ?? [];
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
               decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                'Comments',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
               ),
-            ),
-            const Expanded(
-                child: Center(
-                    child: Text('No comments yet. Be the first to opine!'))),
-            Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                  left: 20,
-                  right: 20),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Add a comment...',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  suffixIcon: const Icon(Icons.send),
-                ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      'Comments (${comments.length})',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    child: comments.isEmpty
+                        ? const Center(
+                            child:
+                                Text('No comments yet. Be the first to opine!'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            itemCount: comments.length,
+                            itemBuilder: (context, index) {
+                              final comment = comments[index];
+                              return ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: comment.userAvatar != null
+                                      ? NetworkImage(comment.userAvatar!)
+                                      : null,
+                                  child: comment.userAvatar == null
+                                      ? Text(comment.userName?[0] ?? '?')
+                                      : null,
+                                ),
+                                title: Text(comment.userName ?? 'Anonymous',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                subtitle: Text(comment.text ?? ''),
+                              );
+                            },
+                          ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                        left: 20,
+                        right: 20),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _commentController,
+                            decoration: InputDecoration(
+                              hintText: 'Add a comment...',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.send),
+                          color: const Color(0xFF3A4A7D),
+                          onPressed: () {
+                            if (_commentController.text.isNotEmpty) {
+                              final authState = context.read<AuthBloc>().state;
+                              if (authState is Authenticated) {
+                                final comment = CommentEntity(
+                                  id: const Uuid().v4(),
+                                  userId: authState.user.uid,
+                                  userName: authState.user.displayName,
+                                  userAvatar: authState.user.photoURL,
+                                  text: _commentController.text,
+                                  createdAt: DateTime.now().toIso8601String(),
+                                );
+                                context
+                                    .read<ArticleDetailBloc>()
+                                    .add(AddCommentArticle(comment));
+                                _commentController.clear();
+                              } else {
+                                _showModernSnackBar(
+                                    context, 'Sign in to comment');
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

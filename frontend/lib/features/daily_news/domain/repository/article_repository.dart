@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import '../entities/comment.dart';
 
 abstract class ArticleRepository {
   // API methods
@@ -24,4 +25,10 @@ abstract class ArticleRepository {
   Future<void> deleteMyArticle(ArticleEntity article);
 
   Future<String> uploadImage(File file, String path);
+
+  Stream<ArticleEntity?> getArticleStream(String articleId);
+
+  Future<void> toggleLike(ArticleEntity article, String userId);
+
+  Future<void> addComment(ArticleEntity article, CommentEntity comment);
 }

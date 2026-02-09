@@ -15,6 +15,10 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/save_my_article.dart';
 import 'features/daily_news/domain/usecases/edit_my_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/delete_my_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/get_article_stream.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/toggle_like.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/add_comment.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/navigation/navigation_bloc.dart';
 
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
@@ -73,6 +77,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<SearchArticleUseCase>(SearchArticleUseCase(sl()));
 
+  sl.registerSingleton<GetArticleStreamUseCase>(GetArticleStreamUseCase(sl()));
+  sl.registerSingleton<ToggleLikeUseCase>(ToggleLikeUseCase(sl()));
+  sl.registerSingleton<AddCommentUseCase>(AddCommentUseCase(sl()));
+
   // Auth UseCases
   // Auth UseCases
   sl.registerSingleton<LoginUseCase>(LoginUseCase(sl()));
@@ -98,4 +106,7 @@ Future<void> initializeDependencies() async {
       ));
 
   sl.registerFactory<NavigationBloc>(() => NavigationBloc());
+
+  sl.registerFactory<ArticleDetailBloc>(
+      () => ArticleDetailBloc(sl(), sl(), sl()));
 }
