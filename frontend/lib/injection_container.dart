@@ -18,6 +18,13 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/search_article.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
+import 'package:news_app_clean_architecture/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/login.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/register.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/logout.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -34,6 +41,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
   sl.registerSingleton<FirebaseArticleService>(FirebaseArticleService());
   sl.registerSingleton<FirebaseStorageService>(FirebaseStorageService());
+  sl.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
+
+  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
 
   sl.registerSingleton<ArticleRepository>(
       ArticleRepositoryImpl(sl(), sl(), sl(), sl()));
@@ -55,6 +65,11 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<SearchArticleUseCase>(SearchArticleUseCase(sl()));
 
+  // Auth UseCases
+  sl.registerSingleton<LoginUseCase>(LoginUseCase(sl()));
+  sl.registerSingleton<RegisterUseCase>(RegisterUseCase(sl()));
+  sl.registerSingleton<LogoutUseCase>(LogoutUseCase(sl()));
+
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl(), sl()));
 
@@ -62,4 +77,11 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<LocalArticleBloc>(
       () => LocalArticleBloc(sl(), sl(), sl()));
+
+  sl.registerFactory<AuthBloc>(() => AuthBloc(
+        loginUseCase: sl(),
+        registerUseCase: sl(),
+        logoutUseCase: sl(),
+        authRepository: sl(),
+      ));
 }

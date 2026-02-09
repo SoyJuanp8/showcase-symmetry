@@ -10,6 +10,10 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/main/main_layout.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_event.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_event.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/pages/login/login.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 
 Future<void> main() async {
@@ -36,6 +40,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<LocalArticleBloc>(
           create: (context) => sl()..add(const GetSavedArticles()),
         ),
+        BlocProvider<AuthBloc>(
+          create: (context) => sl()..add(AppStarted()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -43,7 +50,21 @@ class MyApp extends StatelessWidget {
         darkTheme: darkTheme(),
         themeMode: ThemeMode.system,
         onGenerateRoute: AppRoutes.onGenerateRoutes,
-        home: const MainLayout(),
+        home: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is Authenticated) {
+              return const MainLayout();
+            } else if (state is Unauthenticated) {
+              return const LoginPage();
+            } else {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(color: Color(0xFF3A4A7D)),
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }

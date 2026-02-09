@@ -20,17 +20,8 @@ class PublishNewsPage extends StatefulWidget {
 class _PublishNewsPageState extends State<PublishNewsPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  String? _selectedCategory = 'Politics';
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
-
-  final List<String> _categories = [
-    'Politics',
-    'Sports',
-    'Health',
-    'Tech',
-    'Science'
-  ];
 
   @override
   void dispose() {
@@ -74,7 +65,7 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
             ? '${_contentController.text.trim().substring(0, 100)}...'
             : _contentController.text.trim(),
         content: _contentController.text.trim(),
-        category: _selectedCategory,
+        category: 'General',
         publishedAt: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(DateTime.now()),
         urlToImage: '', // Will be updated by Bloc
         url: '');
@@ -192,11 +183,6 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Category Selector
-                      _buildSectionLabel('Category'),
-                      _buildCategoryDropdown(theme),
-                      const SizedBox(height: 24),
-
                       // Image Picker Mock
                       _buildSectionLabel('Feature Image'),
                       _buildImagePicker(theme),
@@ -208,8 +194,6 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
                         controller: _contentController,
                         hint: 'Add article here...',
                         maxLines: 10,
-                        helperText:
-                            'You can use Markdown for subtitles and formatting (# Subtitle, **bold**, etc.)',
                       ),
                       const SizedBox(height: 40),
 
@@ -346,42 +330,6 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _buildCategoryDropdown(ThemeData theme) {
-    final isDark = theme.brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedCategory,
-          isExpanded: true,
-          dropdownColor: isDark ? const Color(0xFF1A1A2E) : Colors.white,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF3A4A7D)),
-          items: _categories.map((String category) {
-            return DropdownMenuItem<String>(
-              value: category,
-              child: Text(category,
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black87)),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedCategory = newValue;
-            });
-          },
-        ),
-      ),
     );
   }
 

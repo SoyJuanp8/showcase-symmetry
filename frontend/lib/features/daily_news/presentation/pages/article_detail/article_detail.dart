@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../domain/entities/article.dart';
 import '../../widgets/molecules/article_header.dart';
 import '../../widgets/molecules/font_size_selector.dart';
@@ -168,12 +169,26 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
   }
 
   Widget _buildArticleText(ArticleEntity article, ThemeData theme) {
-    return Text(
-      article.content ?? 'No content available.',
-      style: TextStyle(
-        fontSize: _bodyFontSize,
-        color: theme.textTheme.bodyLarge?.color,
-        height: 1.6,
+    return MarkdownBody(
+      data: article.content ?? 'No content available.',
+      styleSheet: MarkdownStyleSheet(
+        p: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: _bodyFontSize,
+          height: 1.6,
+        ),
+        h1: theme.textTheme.displayLarge?.copyWith(
+          fontSize: _bodyFontSize + 8,
+          fontWeight: FontWeight.bold,
+        ),
+        h2: theme.textTheme.displayLarge?.copyWith(
+          fontSize: _bodyFontSize + 4,
+          fontWeight: FontWeight.bold,
+        ),
+        strong: const TextStyle(fontWeight: FontWeight.bold),
+        em: const TextStyle(fontStyle: FontStyle.italic),
+        listBullet: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: _bodyFontSize,
+        ),
       ),
     );
   }

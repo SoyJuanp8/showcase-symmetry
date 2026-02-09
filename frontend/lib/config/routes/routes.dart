@@ -5,6 +5,8 @@ import '../../features/daily_news/presentation/pages/article_detail/article_deta
 import '../../features/daily_news/presentation/pages/home/daily_news.dart';
 import '../../features/daily_news/presentation/pages/saved_article/saved_article.dart';
 import '../../features/daily_news/presentation/pages/home/story_view_page.dart';
+import '../../features/auth/presentation/pages/login/login.dart';
+import '../../features/auth/presentation/pages/register/register.dart';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {
@@ -25,6 +27,12 @@ class AppRoutes {
           articles: args['articles'] as List<ArticleEntity>,
           initialIndex: args['initialIndex'] as int,
         ));
+
+      case '/Login':
+        return _materialRoute(const LoginPage());
+
+      case '/Register':
+        return _materialRoute(const RegisterPage());
 
       default:
         return _materialRoute(const DailyNews());

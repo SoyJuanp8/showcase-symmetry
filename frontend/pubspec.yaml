@@ -40,6 +40,7 @@ dependencies:
   firebase_core: ^2.24.0
   cloud_firestore: ^4.14.0
   firebase_storage: ^11.6.0
+  firebase_auth: ^4.16.0
   image_picker: ^1.0.7
 
 
@@ -51,6 +52,9 @@ dependencies:
 
   #like button
   like_button: ^2.0.5
+
+  #markdown
+  flutter_markdown: ^0.7.3
 
 dev_dependencies:
   flutter_test:
