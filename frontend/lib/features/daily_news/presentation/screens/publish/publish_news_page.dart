@@ -3,7 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import '../../bloc/article/my_articles/my_articles_bloc.dart';
 import '../../bloc/article/my_articles/my_articles_event.dart';
 import '../../bloc/article/my_articles/my_articles_state.dart';
@@ -11,7 +11,6 @@ import '../../bloc/article/remote/remote_article_bloc.dart';
 import '../../bloc/article/remote/remote_article_event.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
 class PublishNewsPage extends StatefulWidget {
   final ArticleEntity? article;
@@ -79,7 +78,7 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
       userId = authState.user.uid;
     }
 
-    final newArticle = ArticleModel(
+    final newArticle = ArticleEntity(
         id: widget.article?.id, // Keep ID for local DB if exists
         firebaseId: widget.article?.firebaseId, // Keep Firebase ID
         author: authorName,

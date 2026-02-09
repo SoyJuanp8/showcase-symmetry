@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth_bloc.dart';
 import '../../bloc/auth_event.dart';
 import '../../bloc/auth_state.dart';
+import '../../widgets/atoms/auth_text_field.dart';
+import '../../widgets/molecules/social_login_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -66,12 +68,40 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            'Symmetry News',
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+          title: Row(
+            children: [
+              Image.asset(
+                'assets/images/logo.png',
+                height: 30,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.auto_awesome),
+              ),
+              const SizedBox(width: 10),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black,
+                        decoration: TextDecoration.none,
+                      ),
+                  children: [
+                    const TextSpan(text: 'Symmetry'),
+                    TextSpan(
+                      text: ' News',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: isDark
+                            ? Colors.white.withOpacity(0.6)
+                            : Colors.black.withOpacity(0.6),
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           centerTitle: false,
         ),
@@ -101,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 40),
 
                 // Email Field
-                _buildTextField(
+                AuthTextField(
                   controller: _emailController,
                   label: 'Email Address',
                   hint: 'example@mail.com',
@@ -111,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 24),
 
                 // Password Field
-                _buildTextField(
+                AuthTextField(
                   controller: _passwordController,
                   label: 'Password',
                   hint: '••••••••',
@@ -188,43 +218,12 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 24),
 
                 // Google Sign In Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () =>
-                        context.read<AuthBloc>().add(GoogleSignInRequested()),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      elevation: 1,
-                      shadowColor: Colors.black.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: Colors.grey[200]!),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
-                          height: 24,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.g_mobiledata,
-                                  size: 24, color: Colors.blue),
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                SocialLoginButton(
+                  onPressed: () =>
+                      context.read<AuthBloc>().add(GoogleSignInRequested()),
+                  text: 'Continue with Google',
+                  iconUrl:
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
                 ),
 
                 const SizedBox(height: 32),
@@ -264,66 +263,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-    bool isPasswordVisible = false,
-    VoidCallback? onToggleVisibility,
-    TextInputType? keyboardType,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF3A4A7D),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? Colors.white.withOpacity(0.05)
-                : Colors.grey.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withOpacity(0.2)),
-          ),
-          child: TextField(
-            controller: controller,
-            obscureText: isPassword && !isPasswordVisible,
-            keyboardType: keyboardType,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: Colors.grey[500]),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: Colors.grey[500],
-                      ),
-                      onPressed: onToggleVisibility,
-                    )
-                  : null,
-              hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
-              contentPadding: const EdgeInsets.all(18),
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
