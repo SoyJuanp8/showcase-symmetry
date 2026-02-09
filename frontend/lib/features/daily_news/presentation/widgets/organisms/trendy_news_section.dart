@@ -24,7 +24,23 @@ class TrendyNewsSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: articles.length,
             itemBuilder: (context, index) {
-              return TrendyCard(article: articles[index]);
+              final article = articles[index];
+              final tag =
+                  'trendy_section_${article.url ?? article.title ?? ''}_$index';
+              return TrendyCard(
+                article: article,
+                heroTag: tag,
+                onArticlePressed: (article) {
+                  Navigator.pushNamed(
+                    context,
+                    '/ArticleDetails',
+                    arguments: {
+                      'article': article,
+                      'heroTag': tag,
+                    },
+                  );
+                },
+              );
             },
           ),
         ),

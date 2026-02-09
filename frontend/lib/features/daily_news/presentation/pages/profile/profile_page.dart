@@ -21,6 +21,7 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_event.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_state.dart';
+import '../../widgets/atoms/fade_in_up.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -181,56 +182,65 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             children: [
-              Text(
-                state.user.displayName ?? 'News Reader',
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+              FadeInUp(
+                delay: const Duration(milliseconds: 100),
+                child: Text(
+                  state.user.displayName ?? 'News Reader',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.w900),
+                ),
               ),
               const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.email_outlined,
-                      size: 14, color: Color(0xFF3A4A7D)),
-                  const SizedBox(width: 6),
-                  Text(
-                    state.user.email ?? 'Journalist',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+              FadeInUp(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.email_outlined,
+                        size: 14, color: Color(0xFF3A4A7D)),
+                    const SizedBox(width: 6),
+                    Text(
+                      state.user.email ?? 'Journalist',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               // Edit Profile Button
-              GestureDetector(
-                onTap: () =>
-                    _showEditProfileDialog(context, state.user.displayName),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: theme.brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color:
-                          theme.textTheme.bodyMedium?.color?.withOpacity(0.2) ??
-                              Colors.grey,
+              FadeInUp(
+                delay: const Duration(milliseconds: 300),
+                child: GestureDetector(
+                  onTap: () =>
+                      _showEditProfileDialog(context, state.user.displayName),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: theme.textTheme.bodyMedium?.color
+                                ?.withOpacity(0.2) ??
+                            Colors.grey,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Edit Name',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                    child: Text(
+                      'Edit Name',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                      ),
                     ),
                   ),
                 ),
@@ -244,62 +254,81 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              ProfileStats(
-                isExpanded: _showArticlesList,
-                onTap: () {
-                  setState(() {
-                    _showArticlesList = !_showArticlesList;
-                    if (_showArticlesList) {
-                      context.read<MyArticlesBloc>().add(const GetMyArticles());
-                    }
-                  });
-                },
+              FadeInUp(
+                delay: const Duration(milliseconds: 400),
+                child: ProfileStats(
+                  isExpanded: _showArticlesList,
+                  onTap: () {
+                    setState(() {
+                      _showArticlesList = !_showArticlesList;
+                      if (_showArticlesList) {
+                        context
+                            .read<MyArticlesBloc>()
+                            .add(const GetMyArticles());
+                      }
+                    });
+                  },
+                ),
               ),
-              if (_showArticlesList) _buildMyArticles(theme),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: _showArticlesList
+                    ? _buildMyArticles(theme)
+                    : const SizedBox(width: double.infinity),
+              ),
               const SizedBox(height: 24),
 
               // Theme Toggle Section
-              _buildSettingsSection(context, theme),
+              FadeInUp(
+                delay: const Duration(milliseconds: 500),
+                child: _buildSettingsSection(context, theme),
+              ),
               const SizedBox(height: 24),
 
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () => _showPublishOptions(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3A4A7D),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    elevation: 0,
+              FadeInUp(
+                delay: const Duration(milliseconds: 600),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () => _showPublishOptions(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3A4A7D),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      elevation: 0,
+                    ),
+                    child: const Text('Publish News',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  child: const Text('Publish News',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 16),
               // Logout Button
-              // Logout Button
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(LogoutRequested());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent.withOpacity(0.1),
-                    foregroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    elevation: 0,
-                    side: const BorderSide(color: Colors.red, width: 1.5),
+              FadeInUp(
+                delay: const Duration(milliseconds: 700),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(LogoutRequested());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent.withOpacity(0.1),
+                      foregroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      elevation: 0,
+                      side: const BorderSide(color: Colors.red, width: 1.5),
+                    ),
+                    child: const Text('Log Out',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  child: const Text('Log Out',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 100),
@@ -478,7 +507,23 @@ class _ProfilePageState extends State<ProfilePage> {
   void _showPublishOptions(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PublishNewsPage()),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const PublishNewsPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
     );
   }
 

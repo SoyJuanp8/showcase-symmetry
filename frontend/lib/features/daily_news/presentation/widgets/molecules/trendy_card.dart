@@ -3,11 +3,13 @@ import '../../../domain/entities/article.dart';
 
 class TrendyCard extends StatelessWidget {
   final ArticleEntity article;
+  final String? heroTag;
   final void Function(ArticleEntity article)? onArticlePressed;
 
   const TrendyCard({
     super.key,
     required this.article,
+    this.heroTag,
     this.onArticlePressed,
   });
 
@@ -40,19 +42,22 @@ class TrendyCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: SizedBox(
-                height: 120, // Reduced height for grid
-                width: double.infinity,
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image,
-                        size: 40, color: Colors.grey),
+            Hero(
+              tag: heroTag ?? article.url ?? article.title ?? '',
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: SizedBox(
+                  height: 120, // Reduced height for grid
+                  width: double.infinity,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image,
+                          size: 40, color: Colors.grey),
+                    ),
                   ),
                 ),
               ),

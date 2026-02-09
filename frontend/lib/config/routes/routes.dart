@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../../features/daily_news/domain/entities/article.dart';
 import '../../features/daily_news/presentation/pages/article_detail/article_detail.dart';
 import '../../features/daily_news/presentation/pages/home/daily_news.dart';
-import '../../features/daily_news/presentation/pages/saved_article/saved_article.dart';
 import '../../features/daily_news/presentation/pages/home/story_view_page.dart';
 import '../../features/auth/presentation/pages/login/login.dart';
 import '../../features/auth/presentation/pages/register/register.dart';
 import '../../features/daily_news/presentation/pages/profile/profile_page.dart';
+import '../../features/daily_news/presentation/pages/saved/saved_articles.dart';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {
@@ -16,11 +16,18 @@ class AppRoutes {
         return _materialRoute(const DailyNews());
 
       case '/ArticleDetails':
+        if (settings.arguments is Map<String, dynamic>) {
+          final args = settings.arguments as Map<String, dynamic>;
+          return _materialRoute(ArticleDetailsView(
+            article: args['article'] as ArticleEntity,
+            heroTag: args['heroTag'] as String?,
+          ));
+        }
         return _materialRoute(
             ArticleDetailsView(article: settings.arguments as ArticleEntity));
 
       case '/SavedArticles':
-        return _materialRoute(const SavedArticles());
+        return _materialRoute(const SavedArticlesPage());
 
       case '/StoryView':
         final args = settings.arguments as Map<String, dynamic>;

@@ -7,6 +7,8 @@ import '../../widgets/organisms/featured_news_widget.dart';
 import '../../widgets/organisms/recent_news_widget.dart';
 import '../../widgets/organisms/news_stories_widget.dart';
 
+import '../../widgets/atoms/fade_in_up.dart';
+
 class MyArticlesPage extends StatelessWidget {
   MyArticlesPage({super.key});
 
@@ -38,19 +40,28 @@ class MyArticlesPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  NewsStoriesWidget(
-                    key: ValueKey('stories_$themeBrightness'),
-                    articles: articles,
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 100),
+                    child: NewsStoriesWidget(
+                      key: ValueKey('stories_$themeBrightness'),
+                      articles: articles,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  FeaturedNewsWidget(
-                    key: ValueKey('featured_$themeBrightness'),
-                    articles: articles,
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 200),
+                    child: FeaturedNewsWidget(
+                      key: ValueKey('featured_$themeBrightness'),
+                      articles: articles,
+                    ),
                   ),
                   const SizedBox(height: 24),
-                  RecentNewsWidget(
-                    key: ValueKey('recent_$themeBrightness'),
-                    articles: articles,
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 300),
+                    child: RecentNewsWidget(
+                      key: ValueKey('recent_$themeBrightness'),
+                      articles: articles,
+                    ),
                   ),
                 ],
               ),

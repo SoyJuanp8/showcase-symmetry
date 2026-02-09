@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -15,11 +16,13 @@ import '../../../domain/entities/article.dart';
 import '../../widgets/molecules/article_header.dart';
 import '../../widgets/molecules/font_size_selector.dart';
 import '../../widgets/organisms/article_actions_bar.dart';
+import '../../widgets/atoms/fade_in_up.dart';
 
 class ArticleDetailsView extends StatefulWidget {
   final ArticleEntity article;
+  final String? heroTag;
 
-  const ArticleDetailsView({super.key, required this.article});
+  const ArticleDetailsView({super.key, required this.article, this.heroTag});
 
   @override
   State<ArticleDetailsView> createState() => _ArticleDetailsViewState();
@@ -126,22 +129,60 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
-        _buildMetadata(theme, article),
+        FadeInUp(
+          delay: const Duration(milliseconds: 200),
+          child: _buildMetadata(theme, article),
+        ),
         const SizedBox(height: 16),
-        _buildTitle(theme, article),
+        FadeInUp(
+          delay: const Duration(milliseconds: 300),
+          child: _buildTitle(theme, article),
+        ),
         const SizedBox(height: 20),
-        _buildDescription(theme, article),
+        FadeInUp(
+          delay: const Duration(milliseconds: 400),
+          child: _buildDescription(theme, article),
+        ),
         const SizedBox(height: 24),
-        _buildAISummarySection(context, article, theme),
+        FadeInUp(
+          delay: const Duration(milliseconds: 500),
+          child: _buildAISummarySection(context, article, theme),
+        ),
         const SizedBox(height: 24),
-        _buildMainImage(article),
+        Hero(
+          tag: widget.heroTag ?? article.url ?? article.title ?? '',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              article.urlToImage ?? 'https://via.placeholder.com/600',
+              width: double.infinity,
+              height: 250,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 250,
+                color: Colors.grey[200],
+                child: const Icon(Icons.broken_image,
+                    size: 50, color: Colors.grey),
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
-        _buildImageCaption(theme),
+        FadeInUp(
+          delay: const Duration(milliseconds: 600),
+          child: _buildImageCaption(theme),
+        ),
         const SizedBox(height: 32),
-        _buildArticleText(article, theme),
+        FadeInUp(
+          delay: const Duration(milliseconds: 700),
+          child: _buildArticleText(article, theme),
+        ),
       ],
     );
   }
+
+  // _buildMainImage removed as it's now inline to allow different animation handling if needed,
+  // but mostly to keep the structure clean with offsets.
 
   Widget _buildMetadata(ThemeData theme, ArticleEntity article) {
     return Text(
@@ -171,23 +212,6 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
         fontSize: _bodyFontSize * 0.88, // Scaled from 16
         color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
         height: 1.5,
-      ),
-    );
-  }
-
-  Widget _buildMainImage(ArticleEntity article) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Image.network(
-        article.urlToImage ?? 'https://via.placeholder.com/600',
-        width: double.infinity,
-        height: 250,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          height: 250,
-          color: Colors.grey[200],
-          child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-        ),
       ),
     );
   }
@@ -722,7 +746,13 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
   }
 
   void _handleShare() {
-    _showModernSnackBar(context, 'Opening system share...',
-        icon: Icons.share_outlined);
+    if (widget.article.url != null && widget.article.url!.isNotEmpty) {
+      Share.share(
+        'Check out this news from Symmetry: ${widget.article.title}\n\n${widget.article.url}',
+        subject: widget.article.title,
+      );
+    } else {
+      _showModernSnackBar(context, 'No URL available to share');
+    }
   }
 }

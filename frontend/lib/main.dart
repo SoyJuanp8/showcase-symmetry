@@ -16,6 +16,7 @@ import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth
 import 'package:news_app_clean_architecture/features/auth/presentation/pages/login/login.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/splash/splash_screen.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 
 Future<void> main() async {
@@ -60,14 +61,9 @@ class MyApp extends StatelessWidget {
             home: BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
                 if (authState is Authenticated) {
-                  return MainLayout(key: ValueKey(themeState.themeMode));
+                  return const MainLayout();
                 } else if (authState is AuthInitial) {
-                  return const Scaffold(
-                    body: Center(
-                      child:
-                          CircularProgressIndicator(color: Color(0xFF3A4A7D)),
-                    ),
-                  );
+                  return const SplashScreen();
                 } else {
                   return const LoginPage();
                 }

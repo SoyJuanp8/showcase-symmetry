@@ -24,11 +24,17 @@ class RecentNewsWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final article = articles[index];
           return GestureDetector(
-            onTap: () => Navigator.pushNamed(
-              context,
-              '/ArticleDetails',
-              arguments: article,
-            ),
+            onTap: () {
+              final tag = 'recent_${article.url ?? article.title ?? ''}_$index';
+              Navigator.pushNamed(
+                context,
+                '/ArticleDetails',
+                arguments: {
+                  'article': article,
+                  'heroTag': tag,
+                },
+              );
+            },
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
               padding: const EdgeInsets.all(12),
@@ -48,25 +54,29 @@ class RecentNewsWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      article.urlToImage ?? 'https://via.placeholder.com/100',
-                      width: 90,
-                      height: 90,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                  Hero(
+                    tag: 'recent_${article.url ?? article.title ?? ''}_$index',
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        article.urlToImage ?? 'https://via.placeholder.com/100',
                         width: 90,
                         height: 90,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.grey[800]
-                            : Colors.grey[300],
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 30,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 90,
+                          height: 90,
                           color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.grey[600]
-                              : Colors.grey,
+                              ? Colors.grey[800]
+                              : Colors.grey[300],
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 30,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey[600]
+                                    : Colors.grey,
+                          ),
                         ),
                       ),
                     ),
@@ -117,14 +127,6 @@ class RecentNewsWidget extends StatelessWidget {
                                         ?.color
                                         ?.withOpacity(0.5),
                                     fontSize: 12)),
-                            const Spacer(),
-                            Icon(Icons.share_outlined,
-                                size: 18,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.color
-                                    ?.withOpacity(0.5))
                           ],
                         )
                       ],

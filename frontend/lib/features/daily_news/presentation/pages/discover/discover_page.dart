@@ -7,6 +7,8 @@ import '../../widgets/molecules/discover_search_bar.dart';
 import '../../widgets/molecules/trendy_card.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
+import '../../widgets/atoms/fade_in_up.dart';
+
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({super.key});
 
@@ -31,24 +33,30 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: DiscoverSearchBar(
-                    onSearch: (query) {
-                      if (query.isNotEmpty) {
-                        context
-                            .read<RemoteArticlesBloc>()
-                            .add(SearchArticles(query));
-                      } else {
-                        context
-                            .read<RemoteArticlesBloc>()
-                            .add(const GetArticles());
-                      }
-                    },
+                  child: FadeInUp(
+                    delay: const Duration(milliseconds: 100),
+                    child: DiscoverSearchBar(
+                      onSearch: (query) {
+                        if (query.isNotEmpty) {
+                          context
+                              .read<RemoteArticlesBloc>()
+                              .add(SearchArticles(query));
+                        } else {
+                          context
+                              .read<RemoteArticlesBloc>()
+                              .add(const GetArticles());
+                        }
+                      },
+                    ),
                   ),
                 ),
 
                 // Organism: Trendy News (Grid)
                 Expanded(
-                  child: _buildBody(state),
+                  child: FadeInUp(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildBody(state),
+                  ),
                 ),
               ],
             );
@@ -80,9 +88,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
         ),
         itemCount: articles.length,
         itemBuilder: (context, index) {
+          final article = articles[index];
+          final tag =
+              'trendy_discover_${article.url ?? article.title ?? ''}_$index';
           return TrendyCard(
-            article: articles[index],
-            onArticlePressed: (article) => _onArticlePressed(context, article),
+            article: article,
+            heroTag: tag,
+            onArticlePressed: (article) =>
+                _onArticlePressed(context, article, tag),
           );
         },
       );
@@ -90,7 +103,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
     return const SizedBox();
   }
 
-  void _onArticlePressed(BuildContext context, ArticleEntity article) {
-    Navigator.pushNamed(context, '/ArticleDetails', arguments: article);
+  void _onArticlePressed(
+      BuildContext context, ArticleEntity article, String heroTag) {
+    Navigator.pushNamed(
+      context,
+      '/ArticleDetails',
+      arguments: {
+        'article': article,
+        'heroTag': heroTag,
+      },
+    );
   }
 }

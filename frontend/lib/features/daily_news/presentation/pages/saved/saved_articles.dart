@@ -4,6 +4,7 @@ import '../../bloc/article/local/local_article_bloc.dart';
 import '../../bloc/article/local/local_article_event.dart';
 import '../../bloc/article/local/local_article_state.dart';
 import '../../widgets/molecules/bookmark_item.dart';
+import '../../widgets/atoms/fade_in_up.dart';
 
 class SavedArticlesPage extends StatefulWidget {
   const SavedArticlesPage({super.key});
@@ -30,22 +31,21 @@ class _SavedArticlesPageState extends State<SavedArticlesPage> {
           elevation: 0,
           toolbarHeight: 60,
           centerTitle: true,
-          title: const Text(
-            'Bookmarks',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          title: const FadeInUp(
+            delay: Duration(milliseconds: 100),
+            child: Text(
+              'Bookmarks',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.swap_vert, color: theme.primaryColor),
-            ),
-            const SizedBox(width: 8),
-          ],
         ),
-        body: _buildSavedList(context),
+        body: FadeInUp(
+          delay: const Duration(milliseconds: 300),
+          child: _buildSavedList(context),
+        ),
       ),
     );
   }
@@ -70,16 +70,35 @@ class _SavedArticlesPageState extends State<SavedArticlesPage> {
             separatorBuilder: (context, index) => const Divider(height: 40),
             itemBuilder: (context, index) {
               final article = savedArticles[index];
-              return BookmarkItem(
-                article: article,
-                onTap: () {
-                  Navigator.pushNamed(context, '/ArticleDetails',
-                      arguments: article);
-                },
-                onRemove: () {
+              return Dismissible(
+                key: Key(article.url ?? index.toString()),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                onDismissed: (direction) {
                   context.read<LocalArticleBloc>().add(RemoveArticle(article));
                   _showSimpleSnackBar(context, 'Removed from favorites');
                 },
+                child: BookmarkItem(
+                  article: article,
+                  onTap: () {
+                    Navigator.pushNamed(context, '/ArticleDetails',
+                        arguments: article);
+                  },
+                  onRemove: () {
+                    context
+                        .read<LocalArticleBloc>()
+                        .add(RemoveArticle(article));
+                    _showSimpleSnackBar(context, 'Removed from favorites');
+                  },
+                ),
               );
             },
           );

@@ -34,22 +34,24 @@ class _MainLayoutView extends StatefulWidget {
 class _MainLayoutViewState extends State<_MainLayoutView> {
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _pages = [
-      MyArticlesPage(),
-      BlocProvider<RemoteArticlesBloc>(
-        create: (context) => sl<RemoteArticlesBloc>()..add(const GetArticles()),
-        child: DiscoverPage(),
-      ),
-      SavedArticlesPage(),
-      ProfilePage(),
-    ];
     return BlocBuilder<NavigationBloc, NavigationState>(
       builder: (context, state) {
+        final List<Widget> pages = [
+          MyArticlesPage(key: state.index == 0 ? UniqueKey() : null),
+          BlocProvider<RemoteArticlesBloc>(
+            create: (context) =>
+                sl<RemoteArticlesBloc>()..add(const GetArticles()),
+            child: DiscoverPage(key: state.index == 1 ? UniqueKey() : null),
+          ),
+          SavedArticlesPage(key: state.index == 2 ? UniqueKey() : null),
+          ProfilePage(key: state.index == 3 ? UniqueKey() : null),
+        ];
+
         return Scaffold(
           extendBody: false,
           body: IndexedStack(
             index: state.index,
-            children: _pages,
+            children: pages,
           ),
           bottomNavigationBar: FloatingBottomNavBar(
             currentIndex: state.index,

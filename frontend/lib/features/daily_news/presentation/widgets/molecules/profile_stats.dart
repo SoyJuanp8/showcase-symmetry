@@ -47,11 +47,14 @@ class ProfileStats extends StatelessWidget {
                 ),
               ],
             ),
-            Icon(
-              isExpanded
-                  ? Icons.keyboard_arrow_up_rounded
-                  : Icons.keyboard_arrow_down_rounded,
-              color: Colors.grey,
+            AnimatedRotation(
+              turns: isExpanded ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Colors.grey,
+              ),
             ),
           ],
         ),
