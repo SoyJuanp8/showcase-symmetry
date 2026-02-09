@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
@@ -11,11 +13,13 @@ import 'package:news_app_clean_architecture/core/constants/constants.dart';
 class ArticleRepositoryImpl implements ArticleRepository {
   final NewsApiService _newsApiService;
   final FirebaseArticleService _firebaseArticleService;
+  final FirebaseStorageService _firebaseStorageService;
   final AppDatabase _appDatabase;
 
   ArticleRepositoryImpl(
     this._newsApiService,
     this._firebaseArticleService,
+    this._firebaseStorageService,
     this._appDatabase,
   );
 
@@ -87,5 +91,10 @@ class ArticleRepositoryImpl implements ArticleRepository {
   Future<void> saveMyArticle(ArticleEntity article) {
     return _firebaseArticleService
         .publishArticle(ArticleModel.fromEntity(article));
+  }
+
+  @override
+  Future<String> uploadImage(File file, String path) {
+    return _firebaseStorageService.uploadImage(file, path);
   }
 }

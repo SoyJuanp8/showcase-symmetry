@@ -15,8 +15,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/save_my_article.dart';
 
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
-
-// ... other imports
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
 
 final sl = GetIt.instance;
 
@@ -31,9 +31,10 @@ Future<void> initializeDependencies() async {
   // Dependencies
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
   sl.registerSingleton<FirebaseArticleService>(FirebaseArticleService());
+  sl.registerSingleton<FirebaseStorageService>(FirebaseStorageService());
 
   sl.registerSingleton<ArticleRepository>(
-      ArticleRepositoryImpl(sl(), sl(), sl()));
+      ArticleRepositoryImpl(sl(), sl(), sl(), sl()));
 
   //UseCases
   sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
@@ -48,10 +49,12 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<SaveMyArticleUseCase>(SaveMyArticleUseCase(sl()));
 
+  sl.registerSingleton<UploadImageUseCase>(UploadImageUseCase(sl()));
+
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
-  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl()));
+  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl(), sl()));
 
   sl.registerFactory<LocalArticleBloc>(
       () => LocalArticleBloc(sl(), sl(), sl()));

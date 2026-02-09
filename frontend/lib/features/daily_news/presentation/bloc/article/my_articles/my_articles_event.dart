@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
 abstract class MyArticlesEvent {
@@ -10,5 +11,6 @@ class GetMyArticles extends MyArticlesEvent {
 
 class SaveMyArticle extends MyArticlesEvent {
   final ArticleEntity article;
-  const SaveMyArticle(this.article);
+  final File? imageFile;
+  const SaveMyArticle(this.article, {this.imageFile});
 }

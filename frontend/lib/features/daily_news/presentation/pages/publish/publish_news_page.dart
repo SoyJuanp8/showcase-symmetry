@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +21,8 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   String? _selectedCategory = 'Politics';
-  bool _hasImage = false;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
 
   final List<String> _categories = [
     'Politics',
@@ -36,6 +39,19 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+      maxWidth: 1024,
+    );
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    }
+  }
+
   void _onPublish() {
     // 1. Validation
     if (_titleController.text.trim().isEmpty) {
@@ -46,7 +62,7 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
       _showError('Please enter some content');
       return;
     }
-    if (!_hasImage) {
+    if (_selectedImage == null) {
       _showError('Please attach an image');
       return;
     }
@@ -60,11 +76,12 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
         content: _contentController.text.trim(),
         category: _selectedCategory,
         publishedAt: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(DateTime.now()),
-        urlToImage:
-            'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop', // Mock for now, switching to storage later
+        urlToImage: '', // Will be updated by Bloc
         url: '');
 
-    context.read<MyArticlesBloc>().add(SaveMyArticle(newArticle));
+    context
+        .read<MyArticlesBloc>()
+        .add(SaveMyArticle(newArticle, imageFile: _selectedImage));
   }
 
   void _showError(String message) {
@@ -371,11 +388,7 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
   Widget _buildImagePicker(ThemeData theme) {
     final isDark = theme.brightness == Brightness.dark;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _hasImage = !_hasImage; // Mocking attachment/detachment
-        });
-      },
+      onTap: _pickImage,
       child: Container(
         height: 180,
         width: double.infinity,
@@ -385,17 +398,16 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
               : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: _hasImage
+              color: _selectedImage != null
                   ? const Color(0xFFB5B5FF)
                   : Colors.grey.withOpacity(0.2),
-              width: _hasImage ? 2 : 1,
+              width: _selectedImage != null ? 2 : 1,
               style: BorderStyle.solid),
-          image: _hasImage
-              ? const DecorationImage(
-                  image: NetworkImage(
-                      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=500&q=60'),
+          image: _selectedImage != null
+              ? DecorationImage(
+                  image: FileImage(_selectedImage!),
                   fit: BoxFit.cover,
-                  opacity: 0.6,
+                  opacity: 0.8,
                 )
               : null,
         ),
@@ -405,22 +417,26 @@ class _PublishNewsPageState extends State<PublishNewsPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _hasImage ? Colors.green : const Color(0xFFB5B5FF),
+                color: _selectedImage != null
+                    ? Colors.green
+                    : const Color(0xFFB5B5FF),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                  _hasImage ? Icons.check_rounded : Icons.add_a_photo_rounded,
-                  color: _hasImage ? Colors.white : Colors.black,
+                  _selectedImage != null
+                      ? Icons.check_rounded
+                      : Icons.add_a_photo_rounded,
+                  color: _selectedImage != null ? Colors.white : Colors.black,
                   size: 30),
             ),
             const SizedBox(height: 12),
             Text(
-              _hasImage
+              _selectedImage != null
                   ? 'Image Selected (Tap to Change)'
                   : 'Attach Image from Gallery',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: _hasImage ? Colors.white : Colors.grey,
+                color: _selectedImage != null ? Colors.white : Colors.grey,
               ),
             ),
           ],

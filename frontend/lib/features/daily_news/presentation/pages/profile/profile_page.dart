@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
+import 'package:news_app_clean_architecture/injection_container.dart';
 import '../../widgets/molecules/profile_stats.dart';
 import '../publish/publish_news_page.dart';
 
@@ -11,6 +15,48 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _showArticlesList = false;
+  String _profileImageUrl =
+      'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+  bool _isUploading = false;
+
+  Future<void> _updateProfilePicture() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+      maxWidth: 1024,
+    );
+
+    if (image != null) {
+      setState(() {
+        _isUploading = true;
+      });
+
+      try {
+        final uploadUseCase = sl<UploadImageUseCase>();
+        final path =
+            'users/profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+        final url = await uploadUseCase(
+            params: UploadImageParams(file: File(image.path), path: path));
+
+        setState(() {
+          _profileImageUrl = url;
+          _isUploading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _isUploading = false;
+        });
+        // Show error snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating profile: $e')),
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,43 +67,57 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 40), // Lowering the whole top section
-            // Top Section (Header + Avatar)
-            Stack(
-              children: [
-                // Avatar Container
-                Container(
-                  height: 220, // Smaller image
-                  width: double.infinity,
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: theme.brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.05)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(40),
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                        'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', // Default icon
+            const SizedBox(height: 60), // Increased top spacing
+            // Avatar Section
+            Center(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    height: 120, // Reduced from 220
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.grey.withOpacity(0.1),
+                      shape: BoxShape.circle, // Circular avatar
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withOpacity(0.5),
+                        width: 2,
                       ),
-                      fit: BoxFit.contain, // Contain for default icon
+                      image: DecorationImage(
+                        image: NetworkImage(_profileImageUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: _isUploading
+                        ? const Center(child: CircularProgressIndicator())
+                        : null,
+                  ),
+                  GestureDetector(
+                    onTap: _updateProfilePicture,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: theme.scaffoldBackgroundColor,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildCircleIcon(Icons.arrow_back_ios_new, context),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+
+            // Back Button section removed
 
             // Name and Role Section (Below image)
             Padding(
@@ -199,17 +259,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCircleIcon(IconData icon, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, color: Colors.white, size: 20),
     );
   }
 

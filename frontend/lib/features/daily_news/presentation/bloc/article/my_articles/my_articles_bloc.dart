@@ -6,12 +6,18 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_event.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/my_articles/my_articles_state.dart';
 
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
+
 class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
   final GetMyArticlesUseCase _getMyArticlesUseCase;
   final SaveMyArticleUseCase _saveMyArticleUseCase;
+  final UploadImageUseCase _uploadImageUseCase;
 
-  MyArticlesBloc(this._getMyArticlesUseCase, this._saveMyArticleUseCase)
-      : super(const MyArticlesLoading()) {
+  MyArticlesBloc(
+    this._getMyArticlesUseCase,
+    this._saveMyArticleUseCase,
+    this._uploadImageUseCase,
+  ) : super(const MyArticlesLoading()) {
     on<GetMyArticles>(onGetMyArticles);
     on<SaveMyArticle>(onSaveMyArticle);
   }
@@ -33,11 +39,19 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
       SaveMyArticle event, Emitter<MyArticlesState> emit) async {
     emit(const MyArticlesLoading());
     try {
-      await _saveMyArticleUseCase(params: event.article);
+      var articleToSave = event.article;
+
+      if (event.imageFile != null) {
+        final path = 'articles/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final imageUrl = await _uploadImageUseCase(
+            params: UploadImageParams(file: event.imageFile!, path: path));
+
+        articleToSave = event.article.copyWith(urlToImage: imageUrl);
+      }
+
+      await _saveMyArticleUseCase(params: articleToSave);
       emit(const MyArticlesActionSuccess());
     } catch (e) {
-      // In a real app, we'd map this to a DioException or similar
-      // For now, let's emit a generic error state
       emit(MyArticlesError(DioException(
         requestOptions: RequestOptions(),
         error: e,
