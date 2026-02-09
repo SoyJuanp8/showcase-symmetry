@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/register.dart';
 import '../../domain/usecases/logout.dart';
+import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/repository/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -12,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
   final LogoutUseCase _logoutUseCase;
+  final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final AuthRepository _authRepository;
   StreamSubscription<User?>? _authStateSubscription;
 
@@ -19,10 +21,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required LoginUseCase loginUseCase,
     required RegisterUseCase registerUseCase,
     required LogoutUseCase logoutUseCase,
+    required SignInWithGoogleUseCase signInWithGoogleUseCase,
     required AuthRepository authRepository,
   })  : _loginUseCase = loginUseCase,
         _registerUseCase = registerUseCase,
         _logoutUseCase = logoutUseCase,
+        _signInWithGoogleUseCase = signInWithGoogleUseCase,
         _authRepository = authRepository,
         super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
@@ -31,6 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<UpdateUserDisplayName>(_onUpdateUserDisplayName);
+    on<GoogleSignInRequested>(_onGoogleSignInRequested);
   }
 
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -114,6 +119,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     await _logoutUseCase();
     emit(Unauthenticated());
+  }
+
+  Future<void> _onGoogleSignInRequested(
+      GoogleSignInRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      final credential = await _signInWithGoogleUseCase();
+      if (credential?.user != null) {
+        emit(Authenticated(credential!.user!));
+      } else {
+        // credential is null if user cancelled the sign in
+        emit(Unauthenticated());
+      }
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError(_mapErrorToMessage(e.code)));
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
   }
 
   Future<void> _onUpdateUserDisplayName(

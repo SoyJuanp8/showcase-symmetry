@@ -32,7 +32,9 @@ import 'package:news_app_clean_architecture/features/auth/domain/usecases/login.
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/register.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/logout.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/update_profile_photo.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_in_with_google.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 final sl = GetIt.instance;
 
@@ -50,8 +52,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<FirebaseArticleService>(FirebaseArticleService());
   sl.registerSingleton<FirebaseStorageService>(FirebaseStorageService());
   sl.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
+  sl.registerSingleton<GoogleSignIn>(GoogleSignIn());
 
-  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
+  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl(), sl()));
 
   sl.registerSingleton<ArticleRepository>(
       ArticleRepositoryImpl(sl(), sl(), sl(), sl()));
@@ -86,6 +89,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<LoginUseCase>(LoginUseCase(sl()));
   sl.registerSingleton<RegisterUseCase>(RegisterUseCase(sl()));
   sl.registerSingleton<LogoutUseCase>(LogoutUseCase(sl()));
+  sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
   sl.registerSingleton<UpdateProfilePhotoUseCase>(
       UpdateProfilePhotoUseCase(sl()));
 
@@ -102,6 +106,7 @@ Future<void> initializeDependencies() async {
         loginUseCase: sl(),
         registerUseCase: sl(),
         logoutUseCase: sl(),
+        signInWithGoogleUseCase: sl(),
         authRepository: sl(),
       ));
 

@@ -180,6 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Text(
                 state.user.displayName ?? 'News Reader',
+                textAlign: TextAlign.center,
                 style:
                     const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
               ),

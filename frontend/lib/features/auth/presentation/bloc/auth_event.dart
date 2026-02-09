@@ -52,3 +52,5 @@ class AuthUserChanged extends AuthEvent {
   @override
   List<Object?> get props => [user];
 }
+
+class GoogleSignInRequested extends AuthEvent {}
