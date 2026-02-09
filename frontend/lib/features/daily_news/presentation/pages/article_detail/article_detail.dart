@@ -89,7 +89,6 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCategoryBadge(theme, article),
         const SizedBox(height: 16),
         _buildMetadata(theme, article),
         const SizedBox(height: 16),
@@ -103,32 +102,6 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
         const SizedBox(height: 32),
         _buildArticleText(article, theme),
       ],
-    );
-  }
-
-  Widget _buildCategoryBadge(ThemeData theme, ArticleEntity article) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.primaryColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.flash_on, color: Colors.white, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            (article.category ?? 'News').toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

@@ -17,6 +17,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/search_article.dart';
 
 final sl = GetIt.instance;
 
@@ -51,8 +52,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<UploadImageUseCase>(UploadImageUseCase(sl()));
 
+  sl.registerSingleton<SearchArticleUseCase>(SearchArticleUseCase(sl()));
+
   //Blocs
-  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
+  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl(), sl()));
 
   sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl(), sl()));
 

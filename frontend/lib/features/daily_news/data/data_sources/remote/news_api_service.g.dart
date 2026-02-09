@@ -25,12 +25,14 @@ class _NewsApiService implements NewsApiService {
     apiKey,
     country,
     category,
+    q,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'apiKey': apiKey,
       r'country': country,
       r'category': category,
+      r'q': q,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};

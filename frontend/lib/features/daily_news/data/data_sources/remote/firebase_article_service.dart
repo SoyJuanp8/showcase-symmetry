@@ -19,6 +19,21 @@ class FirebaseArticleService {
     }
   }
 
+  Future<List<ArticleModel>> searchArticles(String query) async {
+    try {
+      // Client-side filtering because Firestore doesn't support full-text search locally
+      final allArticles = await getArticles();
+      return allArticles.where((article) {
+        final title = article.title?.toLowerCase() ?? '';
+        final description = article.description?.toLowerCase() ?? '';
+        final q = query.toLowerCase();
+        return title.contains(q) || description.contains(q);
+      }).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> publishArticle(ArticleModel article) async {
     try {
       await _firestore.collection('articles').add(article.toFirestore());

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class DiscoverSearchBar extends StatelessWidget {
-  const DiscoverSearchBar({super.key});
+  final Function(String)? onSearch;
+  const DiscoverSearchBar({super.key, this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,7 @@ class DiscoverSearchBar extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
+                    onSubmitted: onSearch,
                     decoration: InputDecoration(
                       hintText: 'Search for topics',
                       hintStyle: TextStyle(
@@ -39,11 +41,6 @@ class DiscoverSearchBar extends StatelessWidget {
               ],
             ),
           ),
-        ),
-        const SizedBox(width: 15),
-        TextButton(
-          onPressed: () {},
-          child: const Text('Cancel'),
         ),
       ],
     );

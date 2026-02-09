@@ -34,17 +34,6 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                 'Trending News',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'See All',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -182,9 +171,9 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                                             size: 14,
                                           ),
                                           const SizedBox(width: 4),
-                                          const Text(
-                                            '10 min',
-                                            style: TextStyle(
+                                          Text(
+                                            _timeAgo(article.publishedAt),
+                                            style: const TextStyle(
                                               color: Colors.grey,
                                               fontSize: 12,
                                             ),
@@ -227,5 +216,25 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
         ),
       ],
     );
+  }
+
+  String _timeAgo(String? dateString) {
+    if (dateString == null) return '';
+    final date = DateTime.tryParse(dateString);
+    if (date == null) return '';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 1) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} min ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

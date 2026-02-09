@@ -16,6 +16,9 @@ class ArticleRepositoryImpl implements ArticleRepository {
   final FirebaseStorageService _firebaseStorageService;
   final AppDatabase _appDatabase;
 
+  // In-memory cache for client-side search
+  List<ArticleModel> _cachedApiArticles = [];
+
   ArticleRepositoryImpl(
     this._newsApiService,
     this._firebaseArticleService,
@@ -35,7 +38,14 @@ class ArticleRepositoryImpl implements ArticleRepository {
 
       List<ArticleModel> apiArticles = [];
       if (httpResponse.response.statusCode == 200) {
-        apiArticles = httpResponse.data.articles;
+        // Filter out articles without images or with default image
+        apiArticles = httpResponse.data.articles
+            .where((article) =>
+                article.urlToImage != null &&
+                article.urlToImage!.isNotEmpty &&
+                article.urlToImage != kDefaultImage)
+            .toList();
+        _cachedApiArticles = apiArticles; // Save to cache
       }
 
       // 2. Fetch from Firebase (Community)
@@ -47,6 +57,35 @@ class ArticleRepositoryImpl implements ArticleRepository {
       return DataSuccess(combinedArticles);
     } on DioException catch (e) {
       return DataFailed(e);
+    } catch (e) {
+      return DataFailed(DioException(
+        requestOptions: RequestOptions(),
+        error: e,
+        type: DioExceptionType.unknown,
+      ));
+    }
+  }
+
+  @override
+  Future<DataState<List<ArticleModel>>> searchArticles(String query) async {
+    try {
+      final q = query.toLowerCase();
+
+      // 1. Search Cached API Articles (Client-side)
+      final localApiMatches = _cachedApiArticles.where((article) {
+        final title = article.title?.toLowerCase() ?? '';
+        final description = article.description?.toLowerCase() ?? '';
+        return title.contains(q) || description.contains(q);
+      }).toList();
+
+      // 2. Fetch from Firebase (Local/Community) & Filter
+      final communityArticles =
+          await _firebaseArticleService.searchArticles(query);
+
+      // 3. Merge: Community matches first, then API cache matches
+      final combinedArticles = [...communityArticles, ...localApiMatches];
+
+      return DataSuccess(combinedArticles);
     } catch (e) {
       return DataFailed(DioException(
         requestOptions: RequestOptions(),

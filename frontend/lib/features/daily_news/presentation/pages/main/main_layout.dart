@@ -5,6 +5,11 @@ import '../../pages/saved/saved_articles.dart';
 import '../../pages/profile/profile_page.dart';
 import '../../widgets/organisms/floating_bottom_nav_bar.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app_clean_architecture/injection_container.dart';
+import '../../bloc/article/remote/remote_article_bloc.dart';
+import '../../bloc/article/remote/remote_article_event.dart';
+
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -17,7 +22,10 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = [
     const MyArticlesPage(),
-    const DiscoverPage(),
+    BlocProvider<RemoteArticlesBloc>(
+      create: (context) => sl<RemoteArticlesBloc>()..add(const GetArticles()),
+      child: const DiscoverPage(),
+    ),
     const SavedArticlesPage(),
     const ProfilePage(),
   ];

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CategoryFilterBar extends StatefulWidget {
-  const CategoryFilterBar({super.key});
+  final Function(String) onCategorySelected;
+  const CategoryFilterBar({super.key, required this.onCategorySelected});
 
   @override
   State<CategoryFilterBar> createState() => _CategoryFilterBarState();
@@ -35,6 +36,7 @@ class _CategoryFilterBarState extends State<CategoryFilterBar> {
                 setState(() {
                   _selectedIndex = index;
                 });
+                widget.onCategorySelected(_categories[index]);
               },
               child: Container(
                 padding:

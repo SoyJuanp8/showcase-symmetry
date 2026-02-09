@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/entities/source.dart';
 
 class ArticleEntity extends Equatable {
   final int? id;
@@ -9,8 +10,8 @@ class ArticleEntity extends Equatable {
   final String? urlToImage;
   final String? publishedAt;
   final String? content;
-
   final String? category;
+  final Source? source;
 
   const ArticleEntity({
     this.id,
@@ -22,6 +23,7 @@ class ArticleEntity extends Equatable {
     this.publishedAt,
     this.content,
     this.category,
+    this.source,
   });
 
   @override
@@ -36,6 +38,7 @@ class ArticleEntity extends Equatable {
       publishedAt,
       content,
       category,
+      source,
     ];
   }
 
@@ -49,6 +52,7 @@ class ArticleEntity extends Equatable {
     String? publishedAt,
     String? content,
     String? category,
+    Source? source,
   }) {
     return ArticleEntity(
       id: id ?? this.id,
@@ -60,6 +64,7 @@ class ArticleEntity extends Equatable {
       publishedAt: publishedAt ?? this.publishedAt,
       content: content ?? this.content,
       category: category ?? this.category,
+      source: source ?? this.source,
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:floor/floor.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import '../../../../core/constants/constants.dart';
+import '../../domain/entities/source.dart';
+import 'source.dart';
 
 @Entity(tableName: 'article', primaryKeys: ['id'])
 class ArticleModel extends ArticleEntity {
@@ -14,6 +16,7 @@ class ArticleModel extends ArticleEntity {
     String? publishedAt,
     String? content,
     String? category,
+    Source? source,
   }) : super(
           id: id,
           author: author,
@@ -24,6 +27,7 @@ class ArticleModel extends ArticleEntity {
           publishedAt: publishedAt,
           content: content,
           category: category,
+          source: source,
         );
 
   factory ArticleModel.fromJson(Map<String, dynamic> map) {
@@ -38,6 +42,8 @@ class ArticleModel extends ArticleEntity {
       publishedAt: map['publishedAt'] ?? "",
       content: map['content'] ?? "",
       category: map['category'] ?? "General",
+      source:
+          map['source'] != null ? SourceModel.fromJson(map['source']) : null,
     );
   }
 
@@ -52,6 +58,7 @@ class ArticleModel extends ArticleEntity {
       publishedAt: entity.publishedAt,
       content: entity.content,
       category: entity.category,
+      source: entity.source,
     );
   }
 
@@ -65,6 +72,7 @@ class ArticleModel extends ArticleEntity {
       publishedAt: map['publishedAt'] ?? "",
       content: map['content'] ?? "",
       category: map['category'] ?? "Community",
+      source: const SourceModel(id: 'community', name: 'Community'),
     );
   }
 

@@ -5,7 +5,6 @@ import '../../bloc/article/remote/remote_article_state.dart';
 import '../../widgets/organisms/home_app_bar.dart';
 import '../../widgets/organisms/featured_news_widget.dart';
 import '../../widgets/organisms/recent_news_widget.dart';
-import '../../widgets/molecules/category_filter_bar.dart';
 
 class MyArticlesPage extends StatelessWidget {
   const MyArticlesPage({super.key});
@@ -38,8 +37,6 @@ class MyArticlesPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   FeaturedNewsWidget(articles: articles),
                   const SizedBox(height: 24),
-                  const CategoryFilterBar(),
-                  const SizedBox(height: 16),
                   RecentNewsWidget(articles: articles),
                 ],
               ),
