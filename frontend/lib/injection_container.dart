@@ -18,9 +18,13 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/get_article_stream.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/toggle_like.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/add_comment.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/get_article_summary.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/ask_article_question.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/detail/article_detail_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/navigation/navigation_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_bloc.dart';
 
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_ai_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/usecases/upload_image.dart';
@@ -51,13 +55,14 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
   sl.registerSingleton<FirebaseArticleService>(FirebaseArticleService());
   sl.registerSingleton<FirebaseStorageService>(FirebaseStorageService());
+  sl.registerSingleton<FirebaseAIService>(FirebaseAIService());
   sl.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
   sl.registerSingleton<GoogleSignIn>(GoogleSignIn());
 
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl(), sl()));
 
   sl.registerSingleton<ArticleRepository>(
-      ArticleRepositoryImpl(sl(), sl(), sl(), sl()));
+      ArticleRepositoryImpl(sl(), sl(), sl(), sl(), sl()));
 
   //UseCases
   sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
@@ -83,6 +88,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<GetArticleStreamUseCase>(GetArticleStreamUseCase(sl()));
   sl.registerSingleton<ToggleLikeUseCase>(ToggleLikeUseCase(sl()));
   sl.registerSingleton<AddCommentUseCase>(AddCommentUseCase(sl()));
+  sl.registerSingleton<GetArticleSummaryUseCase>(
+      GetArticleSummaryUseCase(sl()));
+  sl.registerSingleton<AskArticleQuestionUseCase>(
+      AskArticleQuestionUseCase(sl()));
 
   // Auth UseCases
   // Auth UseCases
@@ -112,6 +121,8 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<NavigationBloc>(() => NavigationBloc());
 
+  sl.registerFactory<ThemeBloc>(() => ThemeBloc());
+
   sl.registerFactory<ArticleDetailBloc>(
-      () => ArticleDetailBloc(sl(), sl(), sl()));
+      () => ArticleDetailBloc(sl(), sl(), sl(), sl(), sl()));
 }

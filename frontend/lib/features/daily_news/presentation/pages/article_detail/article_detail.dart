@@ -132,6 +132,8 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
         const SizedBox(height: 20),
         _buildDescription(theme, article),
         const SizedBox(height: 24),
+        _buildAISummarySection(context, article, theme),
+        const SizedBox(height: 24),
         _buildMainImage(article),
         const SizedBox(height: 8),
         _buildImageCaption(theme),
@@ -237,6 +239,278 @@ class _ArticleDetailsViewState extends State<ArticleDetailsView> {
           _buildReadMoreButton(article.url!, theme),
         ],
       ],
+    );
+  }
+
+  Widget _buildAISummarySection(
+      BuildContext context, ArticleEntity article, ThemeData theme) {
+    return BlocBuilder<ArticleDetailBloc, ArticleDetailState>(
+      builder: (context, state) {
+        final content = article.content ?? article.description ?? '';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (state.summary == null &&
+                !state.isSummarizing &&
+                state.summaryError == null)
+              _buildAISummaryButton(context, article, theme),
+            if (state.isSummarizing)
+              _buildLoadingState(theme, 'Gemini is analyzing the news...'),
+            if (state.summaryError != null && state.summary == null)
+              _buildErrorState(context, article, theme, state.summaryError!),
+            if (state.summary != null) ...[
+              _buildSummaryCard(state.summary!, theme),
+              const SizedBox(height: 16),
+              _buildSmartQuestionsSection(context, content, theme, state),
+            ],
+            if (state.isAskingQuestion)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _buildLoadingState(theme, 'Gemini is researching...'),
+              ),
+            if (state.questionAnswer != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _buildAnswerCard(state.questionAnswer!, theme),
+              ),
+            if (state.questionError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Error: ${state.questionError}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingState(ThemeData theme, String message) {
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+                strokeWidth: 2, color: Color(0xFF3A4A7D)),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 13,
+              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, ArticleEntity article,
+      ThemeData theme, String error) {
+    return Column(
+      children: [
+        _buildAISummaryButton(context, article, theme, isRetry: true),
+        const SizedBox(height: 8),
+        Text(
+          'Error: $error',
+          style: const TextStyle(color: Colors.red, fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSmartQuestionsSection(BuildContext context, String content,
+      ThemeData theme, ArticleDetailState state) {
+    final questions = [
+      {'label': 'Highlights', 'q': 'What are the key takeaways?'},
+      {
+        'label': 'Figures',
+        'q': 'Who are the key people or entities mentioned?'
+      },
+      {'label': 'Timeline', 'q': 'What is the timeline of events mentioned?'},
+      {
+        'label': 'Author',
+        'q': 'Who wrote or uploaded this news? (Check content/metadata)'
+      },
+      {'label': 'Refresh', 'q': 'SUMMARIZE'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.psychology_outlined,
+                color: Color(0xFF3A4A7D), size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'DIVE DEEPER WITH GEMINI',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                color: const Color(0xFF3A4A7D),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: questions.map((item) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  label: Text(item['label']!),
+                  labelStyle: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w600),
+                  onSelected: (_) {
+                    if (item['q'] == 'SUMMARIZE') {
+                      context
+                          .read<ArticleDetailBloc>()
+                          .add(GenerateSummary(content));
+                    } else {
+                      context
+                          .read<ArticleDetailBloc>()
+                          .add(AskArticleQuestion(item['q']!));
+                    }
+                  },
+                  backgroundColor: theme.scaffoldBackgroundColor,
+                  selectedColor: const Color(0xFF3A4A7D).withOpacity(0.1),
+                  side: BorderSide(
+                      color: const Color(0xFF3A4A7D).withOpacity(0.2)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnswerCard(String answer, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3A4A7D).withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3A4A7D).withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lightbulb_outline,
+                  color: isDark ? Colors.amber[300] : const Color(0xFF3A4A7D),
+                  size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Gemini Insights',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: const Color(0xFF3A4A7D),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          MarkdownBody(
+            data: answer,
+            styleSheet: MarkdownStyleSheet(
+              p: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: theme.textTheme.bodyLarge?.color?.withOpacity(0.9),
+              ),
+              strong: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAISummaryButton(
+      BuildContext context, ArticleEntity article, ThemeData theme,
+      {bool isRetry = false}) {
+    return Center(
+      child: OutlinedButton.icon(
+        onPressed: () {
+          final content = article.content ?? article.description ?? '';
+          if (content.isNotEmpty) {
+            context.read<ArticleDetailBloc>().add(GenerateSummary(content));
+          } else {
+            _showModernSnackBar(context, 'No content to summarize');
+          }
+        },
+        icon: const Icon(Icons.auto_awesome, size: 18),
+        label: Text(isRetry ? 'Retry summary' : 'Summarize with AI (Gemini)'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF3A4A7D),
+          side: const BorderSide(color: Color(0xFF3A4A7D)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard(String summary, ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3A4A7D).withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3A4A7D).withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome,
+                  color: Color(0xFF3A4A7D), size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'AI Summary',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF3A4A7D),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            summary,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.9),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

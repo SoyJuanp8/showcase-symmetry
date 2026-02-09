@@ -26,3 +26,19 @@ class AddCommentArticle extends ArticleDetailEvent {
   final CommentEntity comment;
   const AddCommentArticle(this.comment);
 }
+
+class GenerateSummary extends ArticleDetailEvent {
+  final String content;
+  const GenerateSummary(this.content);
+
+  @override
+  List<Object> get props => [content];
+}
+
+class AskArticleQuestion extends ArticleDetailEvent {
+  final String question;
+  const AskArticleQuestion(this.question);
+
+  @override
+  List<Object> get props => [question];
+}

@@ -18,6 +18,9 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/presentation/pages/publish/publish_news_page.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_bloc.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_event.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/theme/theme_state.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -253,7 +256,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               if (_showArticlesList) _buildMyArticles(theme),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+
+              // Theme Toggle Section
+              _buildSettingsSection(context, theme),
+              const SizedBox(height: 24),
+
               SizedBox(
                 width: double.infinity,
                 height: 60,
@@ -495,6 +503,58 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSettingsSection(BuildContext context, ThemeData theme) {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        final isDark = state.themeMode == ThemeMode.dark;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.05)
+                : Colors.grey.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.1) ??
+                  Colors.grey,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isDark
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                    color: const Color(0xFF3A4A7D),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Light Theme',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ],
+              ),
+              Switch(
+                value: !isDark,
+                onChanged: (value) {
+                  context.read<ThemeBloc>().add(ToggleTheme());
+                },
+                activeColor: const Color(0xFF3A4A7D),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

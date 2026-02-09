@@ -19,7 +19,7 @@ class MainLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => NavigationBloc(),
-      child: const _MainLayoutView(),
+      child: _MainLayoutView(),
     );
   }
 }
@@ -32,18 +32,17 @@ class _MainLayoutView extends StatefulWidget {
 }
 
 class _MainLayoutViewState extends State<_MainLayoutView> {
-  final List<Widget> _pages = [
-    const MyArticlesPage(),
-    BlocProvider<RemoteArticlesBloc>(
-      create: (context) => sl<RemoteArticlesBloc>()..add(const GetArticles()),
-      child: const DiscoverPage(),
-    ),
-    const SavedArticlesPage(),
-    const ProfilePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _pages = [
+      MyArticlesPage(),
+      BlocProvider<RemoteArticlesBloc>(
+        create: (context) => sl<RemoteArticlesBloc>()..add(const GetArticles()),
+        child: DiscoverPage(),
+      ),
+      SavedArticlesPage(),
+      ProfilePage(),
+    ];
     return BlocBuilder<NavigationBloc, NavigationState>(
       builder: (context, state) {
         return Scaffold(

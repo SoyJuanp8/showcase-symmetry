@@ -8,7 +8,7 @@ import '../../widgets/organisms/recent_news_widget.dart';
 import '../../widgets/organisms/news_stories_widget.dart';
 
 class MyArticlesPage extends StatelessWidget {
-  const MyArticlesPage({super.key});
+  MyArticlesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +31,27 @@ class MyArticlesPage extends StatelessWidget {
               return const Center(child: Text("No articles found"));
             }
 
+            final themeBrightness = Theme.of(context).brightness;
+
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  NewsStoriesWidget(articles: articles),
+                  NewsStoriesWidget(
+                    key: ValueKey('stories_$themeBrightness'),
+                    articles: articles,
+                  ),
                   const SizedBox(height: 16),
-                  FeaturedNewsWidget(articles: articles),
+                  FeaturedNewsWidget(
+                    key: ValueKey('featured_$themeBrightness'),
+                    articles: articles,
+                  ),
                   const SizedBox(height: 24),
-                  RecentNewsWidget(articles: articles),
+                  RecentNewsWidget(
+                    key: ValueKey('recent_$themeBrightness'),
+                    articles: articles,
+                  ),
                 ],
               ),
             );

@@ -37,7 +37,9 @@ class RecentNewsWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.05),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black.withOpacity(0.3)
+                        : Colors.grey.withOpacity(0.05),
                     spreadRadius: 1,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
@@ -56,8 +58,16 @@ class RecentNewsWidget extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         width: 90,
                         height: 90,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.broken_image, size: 30),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[800]
+                            : Colors.grey[300],
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 30,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey[600]
+                              : Colors.grey,
+                        ),
                       ),
                     ),
                   ),
@@ -92,14 +102,29 @@ class RecentNewsWidget extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.calendar_today_outlined,
-                                size: 12, color: Colors.grey[400]),
+                                size: 12,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color
+                                    ?.withOpacity(0.5)),
                             const SizedBox(width: 4),
                             Text(article.publishedAt?.split('T')[0] ?? 'Today',
                                 style: TextStyle(
-                                    color: Colors.grey[400], fontSize: 12)),
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.color
+                                        ?.withOpacity(0.5),
+                                    fontSize: 12)),
                             const Spacer(),
                             Icon(Icons.share_outlined,
-                                size: 18, color: Colors.grey[400])
+                                size: 18,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color
+                                    ?.withOpacity(0.5))
                           ],
                         )
                       ],

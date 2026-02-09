@@ -31,4 +31,8 @@ abstract class ArticleRepository {
   Future<void> toggleLike(ArticleEntity article, String userId);
 
   Future<void> addComment(ArticleEntity article, CommentEntity comment);
+
+  Future<DataState<String>> summarizeArticle(String content);
+  Future<DataState<String>> answerArticleQuestion(
+      String content, String question);
 }

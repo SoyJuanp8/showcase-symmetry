@@ -76,9 +76,7 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFF1E1E1E)
-                          : Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -105,11 +103,17 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.grey[800]
+                                        : Colors.grey[300],
+                                    child: Icon(
                                       Icons.broken_image,
                                       size: 40,
-                                      color: Colors.grey,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.grey[600]
+                                          : Colors.grey,
                                     ),
                                   ),
                                 ),
@@ -122,31 +126,40 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.flash_on,
                                             size: 16,
                                             color: Color(0xFF3A4A7D),
                                           ),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Text(
                                             'News',
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge
+                                                  ?.color
+                                                  ?.withOpacity(0.7),
                                             ),
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                         ],
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
                                         article.title ?? 'No Title',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w900,
                                           height: 1.1,
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.color,
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
@@ -157,24 +170,36 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
                                           Flexible(
                                             child: Text(
                                               'by ${article.author ?? 'Symmetry'}',
-                                              style: const TextStyle(
-                                                color: Colors.grey,
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.color
+                                                    ?.withOpacity(0.6),
                                                 fontSize: 12,
                                               ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          const Icon(
+                                          Icon(
                                             Icons.access_time,
-                                            color: Colors.grey,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.color
+                                                ?.withOpacity(0.6),
                                             size: 14,
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
                                             _timeAgo(article.publishedAt),
-                                            style: const TextStyle(
-                                              color: Colors.grey,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.color
+                                                  ?.withOpacity(0.6),
                                               fontSize: 12,
                                             ),
                                           ),
@@ -207,8 +232,13 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
               width: _currentPage == index ? 16 : 6,
               decoration: BoxDecoration(
                 color: _currentPage == index
-                    ? const Color(0xFF3A4A7D)
-                    : Colors.grey.withOpacity(0.3),
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.color
+                            ?.withOpacity(0.3) ??
+                        Colors.grey.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

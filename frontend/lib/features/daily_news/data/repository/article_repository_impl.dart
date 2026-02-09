@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_ai_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_article_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/firebase_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
@@ -16,6 +17,7 @@ class ArticleRepositoryImpl implements ArticleRepository {
   final NewsApiService _newsApiService;
   final FirebaseArticleService _firebaseArticleService;
   final FirebaseStorageService _firebaseStorageService;
+  final FirebaseAIService _firebaseAIService;
   final AppDatabase _appDatabase;
 
   // In-memory cache for client-side search
@@ -25,6 +27,7 @@ class ArticleRepositoryImpl implements ArticleRepository {
     this._newsApiService,
     this._firebaseArticleService,
     this._firebaseStorageService,
+    this._firebaseAIService,
     this._appDatabase,
   );
 
@@ -165,5 +168,53 @@ class ArticleRepositoryImpl implements ArticleRepository {
   @override
   Future<String> uploadImage(File file, String path) {
     return _firebaseStorageService.uploadImage(file, path);
+  }
+
+  @override
+  Future<DataState<String>> summarizeArticle(String content) async {
+    try {
+      final summary = await _firebaseAIService.summarizeArticle(content);
+      if (summary != null) {
+        return DataSuccess(summary);
+      } else {
+        return DataFailed(DioException(
+          requestOptions: RequestOptions(),
+          error: 'Failed to generate summary: Empty response',
+          type: DioExceptionType.unknown,
+        ));
+      }
+    } catch (e) {
+      print('DEBUG: REPOSITORY AI ERROR [${e.runtimeType}] -> $e');
+      return DataFailed(DioException(
+        requestOptions: RequestOptions(),
+        error: e.toString(),
+        type: DioExceptionType.unknown,
+      ));
+    }
+  }
+
+  @override
+  Future<DataState<String>> answerArticleQuestion(
+      String content, String question) async {
+    try {
+      final answer =
+          await _firebaseAIService.askQuestionAboutArticle(content, question);
+      if (answer != null) {
+        return DataSuccess(answer);
+      } else {
+        return DataFailed(DioException(
+          requestOptions: RequestOptions(),
+          error: 'Failed to get answer: Empty response',
+          type: DioExceptionType.unknown,
+        ));
+      }
+    } catch (e) {
+      print('DEBUG: REPOSITORY AI QUESTION ERROR [${e.runtimeType}] -> $e');
+      return DataFailed(DioException(
+        requestOptions: RequestOptions(),
+        error: e.toString(),
+        type: DioExceptionType.unknown,
+      ));
+    }
   }
 }

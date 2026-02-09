@@ -26,14 +26,18 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
-              children: const [
-                TextSpan(text: 'Symmetry'),
+              children: [
+                const TextSpan(text: 'Symmetry'),
                 TextSpan(
                   text: ' News',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    color: Colors.grey,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.color
+                        ?.withOpacity(0.6),
                   ),
                 ),
               ],
