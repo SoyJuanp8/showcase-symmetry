@@ -46,6 +46,9 @@ La aplicación es completamente funcional, permitiendo:
 - **Dar "Like" a las noticias**: Con feedback instantáneo mediante una animación.
 - **Compartir noticias**: A través de aplicaciones nativas del dispositivo.
 - **Autenticación Segura**: Registro e inicio de sesión completos gestionados con Firebase.
+- **Video Demostrativo**: Puedes ver la aplicación en acción en el siguiente [Enlace de Video](https://drive.google.com/file/d/1k782FaRg-i2-pgwd8orCyN_xqiH3aOan/view?usp=sharing).
+
+
 
 ## 6. Overdelivery (Valor Agregado)
 
