@@ -52,7 +52,7 @@ class MyArticlesPage extends StatelessWidget {
                     delay: const Duration(milliseconds: 200),
                     child: FeaturedNewsWidget(
                       key: ValueKey('featured_$themeBrightness'),
-                      articles: articles,
+                      articles: articles.take(10).toList(),
                     ),
                   ),
                   const SizedBox(height: 24),

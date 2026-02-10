@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../features/daily_news/domain/entities/article.dart';
 import '../../features/daily_news/presentation/screens/article_detail/article_detail.dart';
-import '../../features/daily_news/presentation/screens/home/daily_news.dart';
 import '../../features/daily_news/presentation/screens/home/story_view_page.dart';
 import '../../features/auth/presentation/screens/login/login.dart';
 import '../../features/auth/presentation/screens/register/register.dart';
@@ -13,7 +12,9 @@ class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return _materialRoute(const DailyNews());
+        // Since home is handled in main.dart based on AuthState,
+        // we can return a simple placeholder or the initial splash.
+        return _materialRoute(const Scaffold());
 
       case '/ArticleDetails':
         if (settings.arguments is Map<String, dynamic>) {
@@ -46,7 +47,7 @@ class AppRoutes {
         return _materialRoute(const ProfilePage());
 
       default:
-        return _materialRoute(const DailyNews());
+        return _materialRoute(const Scaffold());
     }
   }
 

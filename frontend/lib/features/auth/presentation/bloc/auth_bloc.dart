@@ -87,8 +87,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegisterRequested(
       RegisterRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    // Pause subscription to avoid auto-login triggering Authenticated state
-    _authStateSubscription?.pause();
     try {
       final credential = await _registerUseCase(
         params: RegisterParams(
@@ -98,9 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
       if (credential?.user != null) {
-        // Sign out immediately to force manual login
-        await _logoutUseCase();
-        emit(RegistrationSuccess());
+        emit(Authenticated(credential!.user!));
       } else {
         emit(const AuthError('Registration failed: User is null'));
       }
@@ -108,9 +104,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthError(_mapErrorToMessage(e.code)));
     } catch (e) {
       emit(AuthError(e.toString()));
-    } finally {
-      // Resume subscription
-      _authStateSubscription?.resume();
     }
   }
 

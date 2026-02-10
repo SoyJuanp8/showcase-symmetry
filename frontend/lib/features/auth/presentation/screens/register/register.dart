@@ -75,15 +75,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is RegistrationSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful! Please log in.'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          Navigator.pop(context); // Go back to Login
+        if (state is Authenticated) {
+          Navigator.pop(
+              context); // Close registration, main.dart swaps to MainLayout
         }
         if (state is AuthError) {
           _showError(state.message);

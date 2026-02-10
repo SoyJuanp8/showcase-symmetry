@@ -187,26 +187,35 @@ class _FeaturedNewsWidgetState extends State<FeaturedNewsWidget> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            widget.articles.length,
-            (index) {
-              final isSelected = _currentPage == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                height: 8,
-                width: isSelected ? 24 : 8,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFF3A4A7D)
-                      : Colors.grey.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(4),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  widget.articles.length,
+                  (index) {
+                    final isSelected = _currentPage == index;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 8,
+                      width: isSelected ? 24 : 8,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFF3A4A7D)
+                            : Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       ],
