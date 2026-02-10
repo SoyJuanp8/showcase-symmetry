@@ -15,7 +15,6 @@ This collection stores all news articles created by the journalists (users). Eac
 | `title` | String | Main headline of the article. Must be concise and descriptive. | "Generative AI Advances" |
 | `content` | String | Full body of the article. | "### Subtitle\n\nContent..." |
 | `description` | String | A brief summary or snippet for the feed/preview cards. | "An overview of..." |
-| `category` | String | Main category for frontend filtering. | "Technology" ("Community" default) |
 | `urlToImage` | String | Public URL of the cover image in Cloud Storage. | `https://firebasestorage...` |
 | `url` | String | External URL of the original article (optional). | `https://example.com/news` |
 | `publishedAt` | String | Publication date/time in ISO 8601. Key for sorting. | `2025-12-06T14:30:00Z` |
@@ -23,6 +22,13 @@ This collection stores all news articles created by the journalists (users). Eac
 | `userId` | String | Firebase Auth UID of the creator options (Ownership). | `uid123` |
 | `likes` | Array<String> | List of User IDs who have liked the article. | `["user1", "user2"]` |
 | `comments` | Array<Map> | Embedded list of comments. | `[{ "text": "...", "author": "..." }]` |
+
+> [!IMPORTANT]
+> ### ⚠️ Nota sobre el campo `category`
+> 
+> Inicialmente se incluyó el campo `category` como parte de la funcionalidad esencial del frontend. Sin embargo, esta característica fue **eliminada del flujo principal** debido a que la API de noticias externa no proporcionaba esta información de manera consistente.
+> 
+> Pido disculpas por la demora en actualizar este documento aunque ya se haya enviado, pero aun no cumpli las 72 horas de plazo entonces lo considere oportuno aun debido a que es solo el reporte de la DB y no afecta el funcionamiento del codigo; el cambio se realizó previamente en la implementación del código, pero el esquema no se había reflejado aquí hasta ahora.
 
 ### Full Document Example (JSON)
 ```json
